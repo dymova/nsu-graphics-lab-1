@@ -1,4 +1,3 @@
-import java.awt.BorderLayout
 import java.awt.Color
 import javax.swing.*
 
@@ -7,7 +6,7 @@ class ColorFormatSelectionPanel(private val imageContext: ImageContext, private 
     private val outputArea: JTextArea = JTextArea()
 
     init {
-//        this.layout = BoxLayout(this, BoxLayout.X_AXIS)
+        this.layout = BoxLayout(this, BoxLayout.X_AXIS)
         val scrollPane = JScrollPane(outputArea)
         this.border = BorderFactory.createTitledBorder(format)
         outputArea.isEditable = false
@@ -17,17 +16,20 @@ class ColorFormatSelectionPanel(private val imageContext: ImageContext, private 
 
 
     fun updateValues() {
-        if (imageContext.selection != null && imageContext.image != null)  {
+        if (imageContext.selection != null && imageContext.image != null) {
 
             val stringBuilder = StringBuilder()
             val selectionY = imageContext.selection!!.y
             val selectionX = imageContext.selection!!.x
             for (y in selectionY until imageContext.selection!!.height + selectionY) {
-                stringBuilder.append("[")
                 if (y != selectionY) {
                     stringBuilder.append(",")
                 }
+                stringBuilder.append("[")
                 for (x in selectionX until imageContext.selection!!.width + selectionX) {
+                    if (x != selectionX) {
+                        stringBuilder.append(",")
+                    }
                     val color = Color(imageContext.image!!.getRGB(x, y))
                     when (format) {
                         rgb -> {
@@ -35,11 +37,11 @@ class ColorFormatSelectionPanel(private val imageContext: ImageContext, private 
                         }
                         hsv -> {
                             val hsv = rgbToHsv(color)
-                            stringBuilder.append("[${hsv.h}, ${hsv.s}, ${hsv.v}]")
+                            stringBuilder.append("[${String.format("%.2f", hsv.h)}, ${String.format("%.2f", hsv.s)}, ${String.format("%.2f", hsv.v)}]")
                         }
                         lab -> {
                             val lab = rgbToLab(color)
-                            stringBuilder.append("[${lab.l}, ${lab.a}, ${lab.b}]")
+                            stringBuilder.append("[${String.format("%.2f", lab.l)}, ${String.format("%.2f", lab.a)}, ${String.format("%.2f", lab.b)}]")
                         }
                     }
                 }

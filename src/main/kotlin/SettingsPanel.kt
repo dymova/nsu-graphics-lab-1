@@ -1,4 +1,5 @@
 import java.awt.Color
+import java.awt.Dimension
 import java.awt.GridLayout
 import java.awt.event.MouseEvent
 import javax.swing.JPanel
@@ -12,7 +13,6 @@ class SettingsPanel(private val imageContext: ImageContext) : JPanel(), ChangeSe
     private val yPanel: KeyValuePanel = KeyValuePanel("Y")
 
     private val rgbPixelPanel: ColorFormatPixelPanel = ColorFormatPixelPanel("R", "G", "B")
-
     private val hsvPixelPanel: ColorFormatPixelPanel = ColorFormatPixelPanel("H", "S", "V")
     private val labPixelPanel: ColorFormatPixelPanel = ColorFormatPixelPanel("L", "A", "B")
 
@@ -22,6 +22,10 @@ class SettingsPanel(private val imageContext: ImageContext) : JPanel(), ChangeSe
 
 
     init {
+        this.minimumSize = Dimension(200, 700)
+        this.preferredSize = Dimension(200, 700)
+
+
         this.layout = GridLayout(0, 1)
         this.add(xPanel)
         this.add(yPanel)

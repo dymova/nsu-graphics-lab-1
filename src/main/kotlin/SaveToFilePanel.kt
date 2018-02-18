@@ -49,10 +49,10 @@ class SaveToFilePanel(private val imageContext: ImageContext) : JPanel(), Change
         val file = fileChooser.selectedFile
         file.printWriter().use {
             for (y in 0 until imageContext.image!!.height) {
-                it.append("[")
                 if (y != 0) {
                     it.append(",")
                 }
+                it.append("[")
                 for (x in 0 until imageContext.image!!.width) {
                     val color = Color(imageContext.image!!.getRGB(x, y))
 

@@ -15,6 +15,9 @@ class MainWindow : JFrame() {
     private val settingsPanel: SettingsPanel = SettingsPanel(imageContext)
     private var mainPanel: JPanel = JPanel()
 
+    private val scrollPane = JScrollPane(imagePanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+            JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED)
+
     private var fileChooser = JFileChooser()
 
     private val changeImageListeners: MutableList<ChangeImageListener> = mutableListOf(saveToFilePanel)
@@ -24,7 +27,7 @@ class MainWindow : JFrame() {
         this.isResizable = true
         this.contentPane = mainPanel
         this.defaultCloseOperation = JFrame.EXIT_ON_CLOSE
-        this.minimumSize = Dimension(750, 500)
+        this.minimumSize = Dimension(900, 700)
 
         createMenu()
 
@@ -38,24 +41,22 @@ class MainWindow : JFrame() {
 
     private fun addComponentsToPanel() {
         settingsPanel.add(saveToFilePanel)
-        val scrollPane = JScrollPane(imagePanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED)
 
         mainPanel.layout = GridBagLayout()
         val constraints = GridBagConstraints()
-        constraints.weightx = 1.0
+        constraints.weightx = 0.8
         constraints.weighty = 1.0
         constraints.gridx = 0
         constraints.gridy = 0
-//        constraints.fill = BOTH
+        constraints.fill = BOTH
         this.add(scrollPane, constraints)
         this.revalidate()
         this.repaint()
-        constraints.weightx = 0.3
+        constraints.weightx = 0.2
         constraints.weighty = 1.0
         constraints.gridx = 1
         constraints.gridy = 0
-//        constraints.fill = BOTH
+        constraints.fill = BOTH
         this.add(settingsPanel, constraints)
     }
 

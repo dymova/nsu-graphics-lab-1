@@ -55,7 +55,7 @@ class ImagePanel(private val imageContext: ImageContext) : JPanel() {
         if (imageContext.image != null) {
             val g2d = g.create() as Graphics2D
             g2d.drawImage(imageContext.image, 0, 0, this)
-            this.preferredSize = Dimension(imageContext.image!!.width, imageContext.image!!.height)
+//            this.preferredSize = Dimension(imageContext.image!!.width, imageContext.image!!.height)
 
             if (imageContext.selection != null) {
                 g2d.color = Color(225, 225, 255, 128)
