@@ -91,12 +91,15 @@ class MainWindow : JFrame() {
 
             mainPanel.revalidate()
             imagePanel.revalidate()
+
+            //todo delete
+            imageContext.notifyHsvListeners()
         }
     }
 
     private fun updateImageContext(bufferedImage: BufferedImage?) {
-        imageContext.originalImage = bufferedImage
-        imageContext.changedImage = bufferedImage
+        imageContext.originalImage = bufferedImage ?: return
+        imageContext.changedImage = BufferedImage(bufferedImage.height, bufferedImage.width, bufferedImage.type)
         imageContext.imageHsv.h = middle.toDouble()
         imageContext.imageHsv.s = middle.toDouble()
         imageContext.imageHsv.v = middle.toDouble()

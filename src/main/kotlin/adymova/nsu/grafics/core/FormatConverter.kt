@@ -94,9 +94,9 @@ private fun multiplyMatrices(firstMatrix: Array<DoubleArray>, secondMatrix: Arra
 }
 
 private fun toColor(r: Double, g: Double, b: Double) = Color(
-        Math.round(r * 255 / 100).normalize(),
-        Math.round(g * 255 / 100).normalize(),
-        Math.round(b * 255 / 100).normalize()
+        Math.round(r * 255 ).normalize(),
+        Math.round(g * 255).normalize(),
+        Math.round(b * 255).normalize()
 )
 
 private fun Long.normalize() = if (this >= 256) 255 else this.toInt()
@@ -107,19 +107,23 @@ class Hsv(
         var v: Double) {
 
     fun toRgb(): Color {
-        val hI = (h / 60).toInt() % 6
-        val vMin = (100 - s) * h / 100
-        val a = (v - vMin) * ((h % 60) / 60)
-        val vInc = vMin + a
-        val vDec = v - a
+        val s1 = s/100
+        val v1 = v/100
+        val h1 = h/360
+
+        val hI = (h1 * 6).toInt()
+        val f = h1 * 6 - hI
+        val p = v1 * (1 - s1)
+        val q = v1 * (1 - f * s1)
+        val t = v1 * (1 - (1 - f) * s1)
 
         return when (hI) {
-            0 -> toColor(v, vInc, vMin)
-            1 -> toColor(vDec, v, vMin)
-            2 -> toColor(vMin, v, vInc)
-            3 -> toColor(vMin, vDec, v)
-            4 -> toColor(vInc, vMin, v)
-            5 -> toColor(v, vMin, vDec)
+            0 -> toColor(v1, t, p)
+            1 -> toColor(q, v1, p)
+            2 -> toColor(p, v1, t)
+            3 -> toColor(p, q, v1)
+            4 -> toColor(t, p, v1)
+            5, 6 -> toColor(v1, p, q)
             else -> throw RuntimeException("RgbToHsv converting error for $h, $s, $v")
         }
     }

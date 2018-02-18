@@ -3,6 +3,7 @@ package adymova.nsu.grafics.panels
 import adymova.nsu.grafics.core.ChangeSelectionListener
 import adymova.nsu.grafics.core.ImageContext
 import adymova.nsu.grafics.core.MousePositionChangedListener
+import adymova.nsu.grafics.panels.lab.LabPanel
 import java.awt.Dimension
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
@@ -53,7 +54,8 @@ class SettingsPanel(private val imageContext: ImageContext) : JPanel(), ChangeSe
         constraints.gridx = 0
         constraints.gridy = 2
         constraints.fill = GridBagConstraints.BOTH
-        add(hsvPanel, constraints)
+        //todo uncomment
+//        add(hsvPanel, constraints)
 
         constraints.weightx = 1.0
         constraints.weighty = 0.40
