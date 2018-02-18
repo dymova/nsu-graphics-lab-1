@@ -4,6 +4,7 @@ import adymova.nsu.grafics.core.ChangeHsvListener
 import adymova.nsu.grafics.core.ImageContext
 import adymova.nsu.grafics.core.rgbToLab
 import java.awt.Color
+import java.awt.Dimension
 import java.awt.Graphics
 import javax.swing.ButtonGroup
 import javax.swing.JPanel
@@ -19,22 +20,24 @@ class HistogramPanel(private val imageContext: ImageContext) : JPanel(), ChangeH
     var bSelectButton = JRadioButton("B")
 
     init {
+        size = Dimension(panelWidth, panelHeight)
         imageContext.subscribeChangeHsvListener(this)
 
         val group = ButtonGroup()
         group.add(lSelectButton)
         group.add(aSelectButton)
         group.add(bSelectButton)
+        lSelectButton.isSelected = true
         add(lSelectButton)
         add(aSelectButton)
         add(bSelectButton)
 
-        lSelectButton.addActionListener { updateistogram() }
-        aSelectButton.addActionListener { updateistogram() }
-        bSelectButton.addActionListener { updateistogram() }
+        lSelectButton.addActionListener { updateHistogram() }
+        aSelectButton.addActionListener { updateHistogram() }
+        bSelectButton.addActionListener { updateHistogram() }
     }
 
-    private fun updateistogram() {
+    private fun updateHistogram() {
         histogram = Histogram(imageToDoubleArray())
         repaint()
 
@@ -44,9 +47,9 @@ class HistogramPanel(private val imageContext: ImageContext) : JPanel(), ChangeH
         val image = imageContext.changedImage
         image ?: return doubleArrayOf()
         val result = DoubleArray(image.width * image.height)
-        for (y in 0 until imageContext.originalImage!!.height) {
-            for (x in 0 until imageContext.originalImage!!.width) {
-                val rgb = Color(imageContext.originalImage!!.getRGB(x, y))
+        for (y in 0 until imageContext.changedImage!!.height) {
+            for (x in 0 until imageContext.changedImage!!.width) {
+                val rgb = Color(imageContext.changedImage!!.getRGB(x, y))
                 val lab = rgbToLab(rgb)
 
                 when {
@@ -70,7 +73,7 @@ class HistogramPanel(private val imageContext: ImageContext) : JPanel(), ChangeH
         }
     }
 
-    fun drawBucket(bucketIndex: Int, bucketSize: Int, g: Graphics, maxSize: Int) {
+    private fun drawBucket(bucketIndex: Int, bucketSize: Int, g: Graphics, maxSize: Int) {
         val bucketHeight = Math.round(bucketSize.toDouble() / maxSize * panelHeight).toInt()
         val x = bucketIndex * bucketBoxWidth
         val y = panelHeight - bucketHeight
@@ -78,10 +81,8 @@ class HistogramPanel(private val imageContext: ImageContext) : JPanel(), ChangeH
     }
 
     override fun imageHsvChanged() {
-        repaint()
+        updateHistogram()
     }
-
-
 }
 
 const val stepsCount = 40

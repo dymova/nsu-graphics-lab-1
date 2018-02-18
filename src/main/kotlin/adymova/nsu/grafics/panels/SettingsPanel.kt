@@ -54,8 +54,7 @@ class SettingsPanel(private val imageContext: ImageContext) : JPanel(), ChangeSe
         constraints.gridx = 0
         constraints.gridy = 2
         constraints.fill = GridBagConstraints.BOTH
-        //todo uncomment
-//        add(hsvPanel, constraints)
+        add(hsvPanel, constraints)
 
         constraints.weightx = 1.0
         constraints.weighty = 0.40

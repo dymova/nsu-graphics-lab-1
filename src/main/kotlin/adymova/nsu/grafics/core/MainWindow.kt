@@ -10,6 +10,10 @@ import java.awt.GridBagLayout
 import java.awt.image.BufferedImage
 import javax.imageio.ImageIO
 import javax.swing.*
+import java.awt.image.WritableRaster
+import java.awt.image.ColorModel
+
+
 
 class MainWindow : JFrame() {
     private var imageContext: ImageContext = ImageContext()
@@ -92,18 +96,24 @@ class MainWindow : JFrame() {
             mainPanel.revalidate()
             imagePanel.revalidate()
 
-            //todo delete
             imageContext.notifyHsvListeners()
         }
     }
 
     private fun updateImageContext(bufferedImage: BufferedImage?) {
         imageContext.originalImage = bufferedImage ?: return
-        imageContext.changedImage = BufferedImage(bufferedImage.height, bufferedImage.width, bufferedImage.type)
+//        imageContext.changedImage = BufferedImage(bufferedImage.height, bufferedImage.width, BufferedImage.TYPE_INT_RGB)
+        imageContext.changedImage = deepCopy(bufferedImage)
         imageContext.imageHsv.h = middle.toDouble()
         imageContext.imageHsv.s = middle.toDouble()
         imageContext.imageHsv.v = middle.toDouble()
+    }
 
+    fun deepCopy(bi: BufferedImage): BufferedImage {
+        val cm = bi.colorModel
+        val isAlphaPremultiplied = cm.isAlphaPremultiplied
+        val raster = bi.copyData(null)
+        return BufferedImage(cm, raster, isAlphaPremultiplied, null)
     }
 }
 
