@@ -1,3 +1,5 @@
+package adymova.nsu.grafics.panels
+
 import javax.swing.JLabel
 import javax.swing.JPanel
 

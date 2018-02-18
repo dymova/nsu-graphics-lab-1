@@ -1,3 +1,8 @@
+package adymova.nsu.grafics.panels
+
+import adymova.nsu.grafics.core.ImageContext
+import adymova.nsu.grafics.core.rgbToHsv
+import adymova.nsu.grafics.core.rgbToLab
 import java.awt.Color
 import javax.swing.*
 
@@ -8,7 +13,7 @@ class ColorFormatSelectionPanel(private val imageContext: ImageContext, private 
     init {
         this.layout = BoxLayout(this, BoxLayout.X_AXIS)
         val scrollPane = JScrollPane(outputArea)
-        this.border = BorderFactory.createTitledBorder(format)
+//        this.border = BorderFactory.createTitledBorder(format)
         outputArea.isEditable = false
         outputArea.lineWrap = true
         add(scrollPane)
@@ -17,7 +22,7 @@ class ColorFormatSelectionPanel(private val imageContext: ImageContext, private 
 
     fun updateValues() {
         if (imageContext.selection != null && imageContext.image != null) {
-
+            outputArea.text = ""
             val stringBuilder = StringBuilder()
             val selectionY = imageContext.selection!!.y
             val selectionX = imageContext.selection!!.x
@@ -33,15 +38,15 @@ class ColorFormatSelectionPanel(private val imageContext: ImageContext, private 
                     val color = Color(imageContext.image!!.getRGB(x, y))
                     when (format) {
                         rgb -> {
-                            stringBuilder.append("[${color.red}, ${color.green}, ${color.blue}]")
+                            stringBuilder.append("[${color.red}; ${color.green}; ${color.blue}]")
                         }
                         hsv -> {
                             val hsv = rgbToHsv(color)
-                            stringBuilder.append("[${String.format("%.2f", hsv.h)}, ${String.format("%.2f", hsv.s)}, ${String.format("%.2f", hsv.v)}]")
+                            stringBuilder.append("[${String.format("%.2f", hsv.h)}; ${String.format("%.2f", hsv.s)}; ${String.format("%.2f", hsv.v)}]")
                         }
                         lab -> {
                             val lab = rgbToLab(color)
-                            stringBuilder.append("[${String.format("%.2f", lab.l)}, ${String.format("%.2f", lab.a)}, ${String.format("%.2f", lab.b)}]")
+                            stringBuilder.append("[${String.format("%.2f", lab.l)}; ${String.format("%.2f", lab.a)}; ${String.format("%.2f", lab.b)}]")
                         }
                     }
                 }

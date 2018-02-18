@@ -1,3 +1,9 @@
+package adymova.nsu.grafics.panels
+
+import adymova.nsu.grafics.core.ChangeImageListener
+import adymova.nsu.grafics.core.ImageContext
+import adymova.nsu.grafics.core.rgbToHsv
+import adymova.nsu.grafics.core.rgbToLab
 import java.awt.Color
 import javax.swing.JButton
 import javax.swing.JComboBox

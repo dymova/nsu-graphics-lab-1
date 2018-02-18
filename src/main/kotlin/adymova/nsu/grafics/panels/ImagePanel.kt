@@ -1,3 +1,6 @@
+package adymova.nsu.grafics.panels
+
+import adymova.nsu.grafics.core.ImageContext
 import java.awt.*
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent

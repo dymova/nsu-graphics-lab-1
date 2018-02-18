@@ -1,3 +1,8 @@
+package adymova.nsu.grafics.core
+
+import adymova.nsu.grafics.panels.ImagePanel
+import adymova.nsu.grafics.panels.SaveToFilePanel
+import adymova.nsu.grafics.panels.SettingsPanel
 import java.awt.Dimension
 import java.awt.GridBagConstraints
 import java.awt.GridBagConstraints.BOTH
@@ -12,7 +17,7 @@ class MainWindow : JFrame() {
 
     private val imagePanel: ImagePanel = ImagePanel(imageContext)
     private val saveToFilePanel: SaveToFilePanel = SaveToFilePanel(imageContext)
-    private val settingsPanel: SettingsPanel = SettingsPanel(imageContext)
+    private val settingsPanel: SettingsPanel = SettingsPanel(imageContext, saveToFilePanel)
     private var mainPanel: JPanel = JPanel()
 
     private val scrollPane = JScrollPane(imagePanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
@@ -27,7 +32,7 @@ class MainWindow : JFrame() {
         this.isResizable = true
         this.contentPane = mainPanel
         this.defaultCloseOperation = JFrame.EXIT_ON_CLOSE
-        this.minimumSize = Dimension(900, 700)
+        this.minimumSize = Dimension(800, 700)
 
         createMenu()
 
@@ -36,12 +41,12 @@ class MainWindow : JFrame() {
         imagePanel.subscribeSelectionListener(settingsPanel)
         imagePanel.subscribeMousePositionListener(settingsPanel)
 
+        extendedState = JFrame.MAXIMIZED_BOTH
+        isUndecorated = true
         this.isVisible = true
     }
 
     private fun addComponentsToPanel() {
-        settingsPanel.add(saveToFilePanel)
-
         mainPanel.layout = GridBagLayout()
         val constraints = GridBagConstraints()
         constraints.weightx = 0.8

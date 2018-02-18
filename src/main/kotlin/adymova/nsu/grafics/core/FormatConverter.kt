@@ -1,3 +1,5 @@
+package adymova.nsu.grafics.core
+
 import java.awt.Color
 
 fun rgbToHsv(rgb: Color): Hsv {
@@ -69,10 +71,10 @@ fun rgbToLab(color: Color): Lab {
 }
 
 private fun f(x: Double): Double {
-    if (x > Math.pow(6.0 / 29, 3.0)) {
-        return Math.pow(x, 1.0 / 3)
+    return if (x > Math.pow(6.0 / 29, 3.0)) {
+        Math.pow(x, 1.0 / 3)
     } else {
-        return (1.0 / 3) * Math.pow(29.0 / 6, 2.0) * x + (4.0 / 29)
+        (1.0 / 3) * Math.pow(29.0 / 6, 2.0) * x + (4.0 / 29)
     }
 }
 
