@@ -18,13 +18,13 @@ fun rgbToHsv(rgb: Color): Hsv {
     }
 
     if (h.isNaN()) {
-        h = 360.0
+        h = 0.0
     }
 
-    var s = 1 - min / max.toDouble()
+    var s = (1 - min / max.toDouble())*100
 
     if (s.isNaN()) {
-        s = 1.0
+        s = 0.0
     }
     val v = max.toDouble() * 100 / 255.0
 
@@ -93,11 +93,38 @@ private fun multiplyMatrices(firstMatrix: Array<DoubleArray>, secondMatrix: Arra
     return result
 }
 
-data class Hsv(
-        val h: Double,
-        val s: Double,
-        val v: Double
+private fun toColor(r: Double, g: Double, b: Double) = Color(
+        Math.round(r * 255 / 100).normalize(),
+        Math.round(g * 255 / 100).normalize(),
+        Math.round(b * 255 / 100).normalize()
 )
+
+private fun Long.normalize() = if (this >= 256) 255 else this.toInt()
+
+class Hsv(
+        var h: Double,
+        var s: Double,
+        var v: Double) {
+
+    fun toRgb(): Color {
+        val hI = (h / 60).toInt() % 6
+        val vMin = (100 - s) * h / 100
+        val a = (v - vMin) * ((h % 60) / 60)
+        val vInc = vMin + a
+        val vDec = v - a
+
+        return when (hI) {
+            0 -> toColor(v, vInc, vMin)
+            1 -> toColor(vDec, v, vMin)
+            2 -> toColor(vMin, v, vInc)
+            3 -> toColor(vMin, vDec, v)
+            4 -> toColor(vInc, vMin, v)
+            5 -> toColor(v, vMin, vDec)
+            else -> throw RuntimeException("RgbToHsv converting error for $h, $s, $v")
+        }
+    }
+
+}
 
 data class Xyz(
         val x: Double,

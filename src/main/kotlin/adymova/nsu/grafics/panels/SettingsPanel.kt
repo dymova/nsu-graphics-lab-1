@@ -1,6 +1,8 @@
 package adymova.nsu.grafics.panels
 
+import adymova.nsu.grafics.core.ChangeSelectionListener
 import adymova.nsu.grafics.core.ImageContext
+import adymova.nsu.grafics.core.MousePositionChangedListener
 import java.awt.Dimension
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
@@ -8,9 +10,9 @@ import java.awt.event.MouseEvent
 import javax.swing.JPanel
 
 
-class SettingsPanel(private val imageContext: ImageContext, saveToFilePanel: SaveToFilePanel) : JPanel(), ChangeSelectionListener,
+class SettingsPanel(private val imageContext: ImageContext) : JPanel(), ChangeSelectionListener,
         MousePositionChangedListener {
-
+    private val saveToFilePanel: SaveToFilePanel = SaveToFilePanel(imageContext)
     private val xyPanel = XyPanel()
 
     private val hsvPanel = HvsPanel(imageContext)
@@ -23,14 +25,14 @@ class SettingsPanel(private val imageContext: ImageContext, saveToFilePanel: Sav
         this.preferredSize = Dimension(160, 700)
         this.maximumSize = Dimension(160, 700)
 
-
-//        this.layout = GridLayout(0, 1)
-//        add(xyPanel)
-//        add(rgbPanel)
-//        add(hsvPanel)
-//        add(labPanel)
-
         layout = GridBagLayout()
+        addPanels()
+
+        imageContext.subscribeSelectionListener(this)
+        imageContext.subscribeMousePositionListener(this)
+    }
+
+    private fun addPanels() {
         val constraints = GridBagConstraints()
         constraints.weightx = 1.0
         constraints.weighty = 0.05
@@ -66,7 +68,6 @@ class SettingsPanel(private val imageContext: ImageContext, saveToFilePanel: Sav
         constraints.gridy = 4
         constraints.fill = GridBagConstraints.BOTH
         add(saveToFilePanel, constraints)
-
     }
 
     private fun updateSettings(x: Int, y: Int, rgb: Int) {
@@ -82,8 +83,8 @@ class SettingsPanel(private val imageContext: ImageContext, saveToFilePanel: Sav
     override fun mouseMoved(e: MouseEvent) {
         val x = e.x
         val y = e.y
-        if (imageContext.image != null && x < imageContext.image!!.width && y < imageContext.image!!.height) {
-            updateSettings(x, y, imageContext.image!!.getRGB(x, y))
+        if (imageContext.changedImage != null && x < imageContext.changedImage!!.width && y < imageContext.changedImage!!.height) {
+            updateSettings(x, y, imageContext.changedImage!!.getRGB(x, y))
         }
 
     }

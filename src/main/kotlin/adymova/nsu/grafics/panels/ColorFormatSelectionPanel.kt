@@ -21,7 +21,7 @@ class ColorFormatSelectionPanel(private val imageContext: ImageContext, private 
 
 
     fun updateValues() {
-        if (imageContext.selection != null && imageContext.image != null) {
+        if (imageContext.selection != null && imageContext.originalImage != null) {
             outputArea.text = ""
             val stringBuilder = StringBuilder()
             val selectionY = imageContext.selection!!.y
@@ -35,7 +35,7 @@ class ColorFormatSelectionPanel(private val imageContext: ImageContext, private 
                     if (x != selectionX) {
                         stringBuilder.append(",")
                     }
-                    val color = Color(imageContext.image!!.getRGB(x, y))
+                    val color = Color(imageContext.changedImage!!.getRGB(x, y))
                     when (format) {
                         rgb -> {
                             stringBuilder.append("[${color.red}; ${color.green}; ${color.blue}]")

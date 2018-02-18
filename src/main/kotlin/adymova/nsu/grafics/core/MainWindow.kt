@@ -1,13 +1,12 @@
 package adymova.nsu.grafics.core
 
 import adymova.nsu.grafics.panels.ImagePanel
-import adymova.nsu.grafics.panels.SaveToFilePanel
 import adymova.nsu.grafics.panels.SettingsPanel
+import adymova.nsu.grafics.panels.middle
 import java.awt.Dimension
 import java.awt.GridBagConstraints
 import java.awt.GridBagConstraints.BOTH
 import java.awt.GridBagLayout
-import java.awt.Rectangle
 import java.awt.image.BufferedImage
 import javax.imageio.ImageIO
 import javax.swing.*
@@ -16,16 +15,13 @@ class MainWindow : JFrame() {
     private var imageContext: ImageContext = ImageContext()
 
     private val imagePanel: ImagePanel = ImagePanel(imageContext)
-    private val saveToFilePanel: SaveToFilePanel = SaveToFilePanel(imageContext)
-    private val settingsPanel: SettingsPanel = SettingsPanel(imageContext, saveToFilePanel)
+    private val settingsPanel: SettingsPanel = SettingsPanel(imageContext)
     private var mainPanel: JPanel = JPanel()
 
     private val scrollPane = JScrollPane(imagePanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
             JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED)
 
     private var fileChooser = JFileChooser()
-
-    private val changeImageListeners: MutableList<ChangeImageListener> = mutableListOf(saveToFilePanel)
 
     init {
         this.title = "Lab1"
@@ -37,9 +33,6 @@ class MainWindow : JFrame() {
         createMenu()
 
         addComponentsToPanel()
-
-        imagePanel.subscribeSelectionListener(settingsPanel)
-        imagePanel.subscribeMousePositionListener(settingsPanel)
 
         extendedState = JFrame.MAXIMIZED_BOTH
         isUndecorated = true
@@ -88,24 +81,26 @@ class MainWindow : JFrame() {
             if (bufferedImage == null) {
                 //todo handle error
             }
-            imageContext.image = bufferedImage
+            imageContext.notifyChangeImageListeners()
+            updateImageContext(bufferedImage)
+
+
             imagePanel.preferredSize = Dimension(bufferedImage!!.width, bufferedImage.height)
 
             imagePanel.repaint()
-
-            changeImageListeners.forEach { it.imageChanged() }
 
             mainPanel.revalidate()
             imagePanel.revalidate()
         }
     }
+
+    private fun updateImageContext(bufferedImage: BufferedImage?) {
+        imageContext.originalImage = bufferedImage
+        imageContext.changedImage = bufferedImage
+        imageContext.imageHsv.h = middle.toDouble()
+        imageContext.imageHsv.s = middle.toDouble()
+        imageContext.imageHsv.v = middle.toDouble()
+
+    }
 }
 
-interface ChangeImageListener {
-    fun imageChanged()
-}
-
-class ImageContext {
-    var image: BufferedImage? = null
-    var selection: Rectangle? = null
-}

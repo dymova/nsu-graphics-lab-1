@@ -7,7 +7,7 @@ import javax.swing.BorderFactory
 import javax.swing.JPanel
 import kotlin.concurrent.thread
 
-class RgbPanel(private val imageContext: ImageContext) : JPanel() {
+class RgbPanel(imageContext: ImageContext) : JPanel() {
     private val rgbSelectionPanel: ColorFormatSelectionPanel = ColorFormatSelectionPanel(imageContext, rgb)
     private val rgbPixelPanel: ColorFormatPixelPanel = ColorFormatPixelPanel("R", "G", "B")
 
@@ -26,7 +26,5 @@ class RgbPanel(private val imageContext: ImageContext) : JPanel() {
      fun updateCursorValue(rgb: Int) {
         val color = Color(rgb)
         rgbPixelPanel.updateValues(color.red.toString(), color.green.toString(), color.blue.toString())
-
     }
-
 }

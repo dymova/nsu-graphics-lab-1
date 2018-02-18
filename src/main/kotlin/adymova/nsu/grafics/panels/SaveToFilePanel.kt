@@ -33,11 +33,12 @@ class SaveToFilePanel(private val imageContext: ImageContext) : JPanel(), Change
         }
 
         this.saveButton.isEnabled = false
+        imageContext.subscribeChangeImageListener(this)
 
     }
 
     override fun imageChanged() {
-        if (imageContext.image != null) {
+        if (imageContext.originalImage != null) {
             this.saveButton.isEnabled = true
         }
     }
@@ -54,13 +55,13 @@ class SaveToFilePanel(private val imageContext: ImageContext) : JPanel(), Change
     private fun writeToFile(format: String) {
         val file = fileChooser.selectedFile
         file.printWriter().use {
-            for (y in 0 until imageContext.image!!.height) {
+            for (y in 0 until imageContext.changedImage!!.height) {
                 if (y != 0) {
                     it.append(",")
                 }
                 it.append("[")
-                for (x in 0 until imageContext.image!!.width) {
-                    val color = Color(imageContext.image!!.getRGB(x, y))
+                for (x in 0 until imageContext.changedImage!!.width) {
+                    val color = Color(imageContext.changedImage!!.getRGB(x, y))
 
                     when (format) {
                         rgb -> {

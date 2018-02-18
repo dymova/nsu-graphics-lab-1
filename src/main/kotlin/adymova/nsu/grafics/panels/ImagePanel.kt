@@ -1,17 +1,17 @@
 package adymova.nsu.grafics.panels
 
+import adymova.nsu.grafics.core.ChangeHsvListener
 import adymova.nsu.grafics.core.ImageContext
+import adymova.nsu.grafics.core.rgbToHsv
 import java.awt.*
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import javax.swing.JPanel
 
 
-class ImagePanel(private val imageContext: ImageContext) : JPanel() {
+class ImagePanel(private val imageContext: ImageContext) : JPanel(), ChangeHsvListener {
     private var clickPoint: Point? = null
 
-    private var selectionListeners: MutableSet<ChangeSelectionListener> = mutableSetOf()
-    private var mousePositionListeners: MutableSet<MousePositionChangedListener> = mutableSetOf()
 
     init {
         val handler = object : MouseAdapter() {
@@ -33,31 +33,25 @@ class ImagePanel(private val imageContext: ImageContext) : JPanel() {
 
             override fun mouseReleased(e: MouseEvent) {
                 clickPoint = null
-                selectionListeners.forEach { it.selectionChanged() }
+                imageContext.notifySelectionListeners()
             }
 
             override fun mouseMoved(e: MouseEvent) {
-                mousePositionListeners.forEach { it.mouseMoved(e) }
+                imageContext.notifyMousePositionListener(e)
             }
 
         }
         addMouseListener(handler)
         addMouseMotionListener(handler)
-    }
 
-    fun subscribeSelectionListener(listener: ChangeSelectionListener) {
-        selectionListeners.add(listener)
-    }
-
-    fun subscribeMousePositionListener(listener: MousePositionChangedListener) {
-        mousePositionListeners.add(listener)
+        imageContext.subscribeChangeHsvListener(this)
     }
 
     override fun paint(g: Graphics) {
         super.paint(g)
-        if (imageContext.image != null) {
+        if (imageContext.changedImage != null) {
             val g2d = g.create() as Graphics2D
-            g2d.drawImage(imageContext.image, 0, 0, this)
+            g2d.drawImage(imageContext.changedImage, 0, 0, this)
 //            this.preferredSize = Dimension(imageContext.image!!.width, imageContext.image!!.height)
 
             if (imageContext.selection != null) {
@@ -72,13 +66,30 @@ class ImagePanel(private val imageContext: ImageContext) : JPanel() {
         }
     }
 
-}
+    override fun imageHsvChanged() {
+        for (y in 0 until imageContext.originalImage!!.height) {
+            for (x in 0 until imageContext.originalImage!!.width) {
+                val rgb = Color(imageContext.originalImage!!.getRGB(x, y))
+                val hsv = rgbToHsv(rgb)
 
-interface ChangeSelectionListener {
-    fun selectionChanged()
-}
+                hsv.h = getNewValue(imageContext.imageHsv.h, hsv.h)
+                hsv.s = getNewValue(imageContext.imageHsv.s, hsv.s)
+                hsv.v = getNewValue(imageContext.imageHsv.v, hsv.v)
 
-interface MousePositionChangedListener {
-    fun mouseMoved(e: MouseEvent)
+                val newRgb = hsv.toRgb()
+                imageContext.changedImage!!.setRGB(x, y, newRgb.rgb)
+            }
+        }
+        repaint()
+    }
+
+    fun getNewValue(sliderValue: Double, currentValue: Double): Double {
+        return when {
+            sliderValue < middle -> sliderValue / middle * currentValue
+            sliderValue > middle -> ((sliderValue / middle) - 1) * (100 - currentValue) + currentValue
+            else -> currentValue
+        }
+    }
+
 }
 

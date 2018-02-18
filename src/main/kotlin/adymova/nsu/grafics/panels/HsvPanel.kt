@@ -1,5 +1,6 @@
 package adymova.nsu.grafics.panels
 
+import adymova.nsu.grafics.core.ChangeImageListener
 import adymova.nsu.grafics.core.ImageContext
 import adymova.nsu.grafics.core.rgbToHsv
 import java.awt.Color
@@ -14,7 +15,7 @@ import kotlin.concurrent.thread
 class HvsPanel(imageContext: ImageContext) : JPanel() {
     private val hsvPixelPanel: ColorFormatPixelPanel = ColorFormatPixelPanel("H", "S", "V")
     private val hsvSelectionPanel: ColorFormatSelectionPanel = ColorFormatSelectionPanel(imageContext, hsv)
-    private val changeImageHsvPanel = ChangeImageHsvPanel()
+    private val changeImageHsvPanel = ChangeImageHsvPanel(imageContext)
 
     init {
         layout = GridBagLayout()
@@ -55,22 +56,54 @@ class HvsPanel(imageContext: ImageContext) : JPanel() {
     }
 }
 
-class ChangeImageHsvPanel :JPanel() {
-    private val hSlider: JSlider = JSlider(JSlider.VERTICAL, 0, 360, 180)
-    private val sSlider: JSlider = JSlider(JSlider.VERTICAL, 0, 100, 50)
-    private val vSlider: JSlider = JSlider(JSlider.VERTICAL, 0, 100, 50)
-//    private val applyButton: JButton = JButton("Apply")
+private const val maxValue = 100
+const val middle = maxValue / 2
+
+class ChangeImageHsvPanel(val imageContext: ImageContext) : JPanel(), ChangeImageListener {
+    private val hSlider: JSlider = JSlider(JSlider.VERTICAL, 0, maxValue, middle)
+    private val sSlider: JSlider = JSlider(JSlider.VERTICAL, 0, maxValue, middle)
+    private val vSlider: JSlider = JSlider(JSlider.VERTICAL, 0, maxValue, middle)
 
     init {
         layout = GridLayout(1, 0)
 
-        hSlider.minorTickSpacing = 20
-        hSlider.majorTickSpacing = 120
+        addSliders()
+
+        addSlidersListeners()
+
+        imageContext.subscribeChangeImageListener(this)
+    }
+
+    private fun addSlidersListeners() {
+        hSlider.addChangeListener {
+            if (imageContext.originalImage != null) {
+                imageContext.imageHsv.h = hSlider.value.toDouble()
+                imageContext.notifyHsvListeners()
+            }
+        }
+        sSlider.addChangeListener {
+            if (imageContext.originalImage != null) {
+                imageContext.imageHsv.s = sSlider.value.toDouble()
+                imageContext.notifyHsvListeners()
+            }
+        }
+        vSlider.addChangeListener {
+            if (imageContext.originalImage != null) {
+                imageContext.imageHsv.v = vSlider.value.toDouble()
+                imageContext.notifyHsvListeners()
+            }
+        }
+    }
+
+    private fun addSliders() {
+        hSlider.minorTickSpacing = 10
+        hSlider.majorTickSpacing = 25
         hSlider.paintTicks = true
         hSlider.paintLabels = true
         hSlider.toolTipText = "H"
-        hSlider.name= "H"
+        hSlider.name = "H"
         add(hSlider)
+
 
         sSlider.minorTickSpacing = 10
         sSlider.majorTickSpacing = 25
@@ -85,8 +118,12 @@ class ChangeImageHsvPanel :JPanel() {
         vSlider.paintLabels = true
         hSlider.toolTipText = "V"
         add(vSlider)
-
-//        add(applyButton)
-
     }
+
+    override fun imageChanged() {
+        hSlider.value = middle
+        sSlider.value = middle
+        vSlider.value = middle
+    }
+
 }

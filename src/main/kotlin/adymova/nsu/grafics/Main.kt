@@ -8,3 +8,4 @@ fun main(args: Array<String>) {
 
 //todo fix settings panel size
 //todo check adymova.nsu.grafics.panels.rgb and adymova.nsu.grafics.panels.hsv
+//todo rewrite by buffer
