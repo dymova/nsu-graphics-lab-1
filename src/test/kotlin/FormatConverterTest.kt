@@ -1,6 +1,4 @@
-import adymova.nsu.grafics.core.Hsv
-import adymova.nsu.grafics.core.ImageContext
-import adymova.nsu.grafics.core.rgbToHsv
+import adymova.nsu.grafics.core.*
 import adymova.nsu.grafics.panels.ImagePanel
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.data.Offset
@@ -50,6 +48,18 @@ class FormatConverterTest {
         assertThat(newValue).isCloseTo(expectedValue, Offset.offset(0.5))
     }
 
+    @ParameterizedTest
+    @MethodSource("rgbAndLabProvider")
+    fun rgbToLabTest(rgb: Color, expectedValue: Lab) {
+        val newValue = rgbToLab(rgb)
+
+        println("Actual: (${newValue.l}, ${newValue.a}, ${newValue.b})")
+        println("Expected: (${expectedValue.l}, ${expectedValue.a}, ${expectedValue.b})")
+        assertDoubleEquals(newValue.l, expectedValue.l)
+        assertDoubleEquals(newValue.a, expectedValue.a)
+        assertDoubleEquals(newValue.b, expectedValue.b)
+    }
+
     companion object {
         @JvmStatic
         fun rgbAndHsvProvider(): Stream<Arguments> {
@@ -73,6 +83,15 @@ class FormatConverterTest {
                     Arguments.of(25.0, 0.0, 0.0),
                     Arguments.of(75.0, 0.0, 50.0),
                     Arguments.of(50.0, 50.0, 50.0)
+            )
+        }
+
+        @JvmStatic
+        fun rgbAndLabProvider(): Stream<Arguments> {
+            return Stream.of(
+                    Arguments.of(Color(0, 0, 0), Lab(0.0, 0.0, 0.0)),
+                    Arguments.of(Color(255, 255, 255), Lab(100.0, 0.005, -0.01)),
+                    Arguments.of(Color(128, 0, 128), Lab(29.7, 58.93, -36.49))
             )
         }
 

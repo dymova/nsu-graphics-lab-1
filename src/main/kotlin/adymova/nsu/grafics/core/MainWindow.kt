@@ -10,9 +10,6 @@ import java.awt.GridBagLayout
 import java.awt.image.BufferedImage
 import javax.imageio.ImageIO
 import javax.swing.*
-import java.awt.image.WritableRaster
-import java.awt.image.ColorModel
-
 
 
 class MainWindow : JFrame() {
@@ -82,9 +79,6 @@ class MainWindow : JFrame() {
         if (returnValue == JFileChooser.APPROVE_OPTION) {
             val file = fileChooser.selectedFile
             val bufferedImage = ImageIO.read(file)
-            if (bufferedImage == null) {
-                //todo handle error
-            }
             imageContext.notifyChangeImageListeners()
             updateImageContext(bufferedImage)
 
@@ -102,7 +96,6 @@ class MainWindow : JFrame() {
 
     private fun updateImageContext(bufferedImage: BufferedImage?) {
         imageContext.originalImage = bufferedImage ?: return
-//        imageContext.changedImage = BufferedImage(bufferedImage.height, bufferedImage.width, BufferedImage.TYPE_INT_RGB)
         imageContext.changedImage = deepCopy(bufferedImage)
         imageContext.imageHsv.h = middle.toDouble()
         imageContext.imageHsv.s = middle.toDouble()

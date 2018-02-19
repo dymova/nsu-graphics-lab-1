@@ -21,7 +21,7 @@ fun rgbToHsv(rgb: Color): Hsv {
         h = 0.0
     }
 
-    var s = (1 - min / max.toDouble())*100
+    var s = (1 - min / max.toDouble()) * 100
 
     if (s.isNaN()) {
         s = 0.0
@@ -32,20 +32,20 @@ fun rgbToHsv(rgb: Color): Hsv {
 }
 
 fun rgbToXyz(rgb: Color): Xyz {
-    val r = rgb.red
-    val g = rgb.green
-    val b = rgb.blue
+    val r = rgb.red / 255.0
+    val g = rgb.green / 255.0
+    val b = rgb.blue / 255.0
 
     val xyzVector = arrayOf(
-            doubleArrayOf(r.toDouble()),
-            doubleArrayOf(g.toDouble()),
-            doubleArrayOf(b.toDouble())
+            doubleArrayOf(r),
+            doubleArrayOf(g),
+            doubleArrayOf(b)
     )
 
     val m = arrayOf(
             doubleArrayOf(0.5767309, 0.1855540, 0.1881852),
             doubleArrayOf(0.2973769, 0.6273491, 0.0752741),
-            doubleArrayOf(0.270343, 0.0706872, 0.9911085)
+            doubleArrayOf(0.0270343, 0.0706872, 0.9911085)
     )
 
     val product = multiplyMatrices(m, xyzVector, 3, 1)
@@ -54,9 +54,12 @@ fun rgbToXyz(rgb: Color): Xyz {
 }
 
 private fun xyzToLab(x: Double, y: Double, z: Double): Lab {
-    val xn = 0.31382
-    val yn = 0.331
-    val zn = 0.35518
+//    val xn = 0.31382
+//    val yn = 0.331
+//    val zn = 0.35518
+    val xn = 0.9504
+    val yn = 1.0000
+    val zn = 1.0888
 
     val l = 116 * f(y / yn) - 16
     val a = 500 * (f(x / xn) - f(y / yn))
@@ -94,7 +97,7 @@ private fun multiplyMatrices(firstMatrix: Array<DoubleArray>, secondMatrix: Arra
 }
 
 private fun toColor(r: Double, g: Double, b: Double) = Color(
-        Math.round(r * 255 ).normalize(),
+        Math.round(r * 255).normalize(),
         Math.round(g * 255).normalize(),
         Math.round(b * 255).normalize()
 )
@@ -107,9 +110,9 @@ class Hsv(
         var v: Double) {
 
     fun toRgb(): Color {
-        val s1 = s/100
-        val v1 = v/100
-        val h1 = h/360
+        val s1 = s / 100
+        val v1 = v / 100
+        val h1 = h / 360
 
         val hI = (h1 * 6).toInt()
         val f = h1 * 6 - hI
