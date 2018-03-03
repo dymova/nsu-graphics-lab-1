@@ -1,13 +1,14 @@
 package adymova.nsu.grafics.core
 
-import adymova.nsu.grafics.panels.ImagePanel
 import adymova.nsu.grafics.panels.SettingsPanel
-import adymova.nsu.grafics.panels.middle
+import adymova.nsu.grafics.panels.general.ImagePanel
+import adymova.nsu.grafics.panels.general.middle
 import java.awt.Dimension
 import java.awt.GridBagConstraints
 import java.awt.GridBagConstraints.BOTH
 import java.awt.GridBagLayout
 import java.awt.image.BufferedImage
+import java.awt.image.BufferedImage.TYPE_INT_RGB
 import javax.imageio.ImageIO
 import javax.swing.*
 
@@ -17,6 +18,7 @@ class MainWindow : JFrame() {
 
     private val imagePanel: ImagePanel = ImagePanel(imageContext)
     private val settingsPanel: SettingsPanel = SettingsPanel(imageContext)
+
     private var mainPanel: JPanel = JPanel()
 
     private val scrollPane = JScrollPane(imagePanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
@@ -96,17 +98,11 @@ class MainWindow : JFrame() {
 
     private fun updateImageContext(bufferedImage: BufferedImage?) {
         imageContext.originalImage = bufferedImage ?: return
-        imageContext.changedImage = deepCopy(bufferedImage)
+        imageContext.changedImage = BufferedImage(bufferedImage.width, bufferedImage.height, TYPE_INT_RGB)
         imageContext.imageHsv.h = middle.toDouble()
         imageContext.imageHsv.s = middle.toDouble()
         imageContext.imageHsv.v = middle.toDouble()
     }
 
-    fun deepCopy(bi: BufferedImage): BufferedImage {
-        val cm = bi.colorModel
-        val isAlphaPremultiplied = cm.isAlphaPremultiplied
-        val raster = bi.copyData(null)
-        return BufferedImage(cm, raster, isAlphaPremultiplied, null)
-    }
 }
 

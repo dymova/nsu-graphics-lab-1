@@ -17,3 +17,7 @@ interface ChangeHsvListener {
 interface ChangeImageListener {
     fun imageChanged()
 }
+
+interface ImageUpdateListener {
+    fun imageUpdated()
+}

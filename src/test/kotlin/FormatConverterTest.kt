@@ -1,8 +1,7 @@
 import adymova.nsu.grafics.core.*
-import adymova.nsu.grafics.panels.ImagePanel
+import adymova.nsu.grafics.panels.general.ImagePanel
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.data.Offset
-import org.junit.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource

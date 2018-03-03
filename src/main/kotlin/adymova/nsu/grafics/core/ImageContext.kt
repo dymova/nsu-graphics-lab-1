@@ -1,6 +1,6 @@
 package adymova.nsu.grafics.core
 
-import adymova.nsu.grafics.panels.middle
+import adymova.nsu.grafics.panels.general.middle
 import java.awt.Rectangle
 import java.awt.event.MouseEvent
 import java.awt.image.BufferedImage
@@ -15,6 +15,7 @@ class ImageContext {
     private val changeImageListeners: MutableList<ChangeImageListener> = mutableListOf()
     private var selectionListeners: MutableSet<ChangeSelectionListener> = mutableSetOf()
     private var mousePositionListeners: MutableSet<MousePositionChangedListener> = mutableSetOf()
+    private var imageUpdateListeners: MutableSet<ImageUpdateListener> = mutableSetOf()
 
 
     fun subscribeChangeHsvListener(changeHsvListener: ChangeHsvListener) {
@@ -45,5 +46,13 @@ class ImageContext {
 
     fun notifyMousePositionListener(e: MouseEvent   ) {
         mousePositionListeners.forEach { it.mouseMoved(e) }
+    }
+
+    fun subscribeImageUpdateListener(listener: ImageUpdateListener) {
+        imageUpdateListeners.add(listener)
+    }
+
+    fun notifyImageUpdateListeners(  ) {
+        imageUpdateListeners.forEach { it.imageUpdated() }
     }
 }
