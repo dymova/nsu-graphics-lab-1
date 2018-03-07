@@ -6,26 +6,22 @@ import kotlin.math.roundToInt
 
 
 inline fun convolution(
-        matrix: Array<FloatArray>,
-        img: BufferedImage,
+        kernel: Array<FloatArray>,
+        intermediateImage: BufferedImage,
         x: Int,
         y: Int,
         chanelType: ChanelType,
         radius: Int
 ): Float {
     var sum = 0f
-    for (currentY in y - radius until y + radius) {
-        for (currentX in x - radius until x + radius) {
-            val rgb = img.getRGB(currentX, currentY)
+    for (currentY in y - radius..y + radius) {
+        for (currentX in x - radius..x + radius) {
+            val rgb = intermediateImage.getRGB(currentX, currentY)
             val chanelValue = selectChanel(chanelType, rgb)
-            val matrixX = currentX - x + radius
-            val matrixY = currentY - y + radius
-            try {
-                val kernelVal = matrix[matrixX][matrixY]
-                sum += kernelVal * chanelValue
-            } catch (e: Exception) {
-                println()
-            }
+            val kernelX = currentX - x + radius
+            val kernelY = currentY - y + radius
+            val kernelVal = kernel[kernelX][kernelY]
+            sum += kernelVal * chanelValue
         }
     }
     return sum
@@ -127,14 +123,19 @@ fun applyResultToImageWithNormalization(resultRedArray: FloatArray, resultGreenA
 
     for (y in 0 until bufferedImage.height) {
         for (x in 0 until bufferedImage.width) {
-            val valueR = resultRedArray[y * bufferedImage.width + x]
-            val valueG = resultGreenArray[y * bufferedImage.width + x]
-            val valueB = resultBlueArray[y * bufferedImage.width + x]
+            val valueIndex = y * bufferedImage.width + x
+            val valueR = resultRedArray[valueIndex]
+            val valueG = resultGreenArray[valueIndex]
+            val valueB = resultBlueArray[valueIndex]
             val delta = 0.0001
             val r = if (maxRed < delta) 0 else (valueR * 255.0f / maxRed).roundToInt()
             val g = if (maxGreen < delta) 0 else (valueG * 255.0f / maxGreen).roundToInt()
             val b = if (maxBlue < delta) 0 else (valueB * 255.0f / maxBlue).roundToInt()
-            bufferedImage.setRGB(x, y, Color(r, g, b).rgb)
+            try {
+                bufferedImage.setRGB(x, y, Color(r, g, b).rgb)
+            } catch (e:Exception){
+                println(e)
+            }
         }
     }
 }

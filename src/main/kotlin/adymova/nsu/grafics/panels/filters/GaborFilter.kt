@@ -5,69 +5,50 @@ import java.awt.GridLayout
 import java.awt.image.BufferedImage
 import javax.swing.*
 import kotlin.math.PI
+import kotlin.math.cos
 import kotlin.math.exp
+import kotlin.math.sin
 
-class GaussianFilterPanel(val imageContext: ImageContext) : JPanel() {
-    private val gaussianFilter = GaussianFilter()
-    private val kernelSizeSlider: JSlider = JSlider(JSlider.HORIZONTAL, 0, 10, 3)
-    private val sigmaSlider: JSlider = JSlider(JSlider.HORIZONTAL, 0, 10, 5)
+class GaborFilterPanel(val imageContext: ImageContext) : JPanel() {
+    private val gaborFilter = GaborFilter()
+    private val tettaSlider: JSlider = JSlider(JSlider.HORIZONTAL, 0, 135, 45)
 
     init {
         layout = GridLayout(0, 1)
 
-        border = BorderFactory.createTitledBorder("Gaussian")
+        border = BorderFactory.createTitledBorder("Gabor")
 
         addApplyButton()
-
         addSliders()
-
-//        addSlidersListeners()
     }
 
     private fun addApplyButton() {
         val applyButton = JButton("Apply")
         applyButton.addActionListener {
             val image = imageContext.changedImage ?: return@addActionListener
-            gaussianFilter.apply(image, kernelSizeSlider.value, sigmaSlider.value / 10.0f)
+                    //todo add kernel size slider
+            gaborFilter.apply(image, tettaSlider.value.toFloat(), 1.0f, 2.0f, 5)
             imageContext.notifyImageUpdateListeners()
         }
         add(applyButton)
     }
 
-    private fun addSlidersListeners() {
-        sigmaSlider.addChangeListener {
-            val image = imageContext.changedImage ?: return@addChangeListener
-            gaussianFilter.apply(image, kernelSizeSlider.value, sigmaSlider.value / 10.0f)
-        }
-        kernelSizeSlider.addChangeListener {
-            val image = imageContext.changedImage ?: return@addChangeListener
-            gaussianFilter.apply(image, kernelSizeSlider.value, sigmaSlider.value / 10.0f)
-
-        }
-    }
-
     private fun addSliders() {
-        add(JLabel("sigma"))
-        sigmaSlider.majorTickSpacing = 1
-        sigmaSlider.paintTicks = true
-        sigmaSlider.paintLabels = true
-        add(sigmaSlider)
-
-        add(JLabel("kernal"))
-        kernelSizeSlider.majorTickSpacing = 1
-        kernelSizeSlider.paintTicks = true
-        kernelSizeSlider.paintLabels = true
-        kernelSizeSlider.snapToTicks = true
-        add(kernelSizeSlider)
+        add(JLabel("tetta"))
+        tettaSlider.majorTickSpacing = 45
+        tettaSlider.paintTicks = true
+        tettaSlider.paintLabels = true
+        tettaSlider.snapToTicks = true
+        add(tettaSlider)
     }
 
 }
 
-class GaussianFilter {
-    //todo debug image moving and lighting
+class GaborFilter {
 
-    fun apply(bufferedImage: BufferedImage, kernelSize: Int, sigma: Float) {
-        val kernel = generateKernel(kernelSize, sigma)
+    fun apply(bufferedImage: BufferedImage, tetta: Float, gamma: Float, lambda: Float, kernelSize: Int) {
+        println("$tetta $gamma $lambda")
+        val kernel = generateKernel(kernelSize, tetta, gamma, lambda)
         val kernelRadius = kernelSize / 2
 
         val intermediateImage = createIntermediateImage(bufferedImage, kernelRadius)
@@ -89,20 +70,38 @@ class GaussianFilter {
         }
 
         applyResultToImageWithNormalization(resultRedArray, resultGreenArray, resultBlueArray, bufferedImage)
+
     }
 
-    private fun generateKernel(size: Int, sigma: Float): Array<FloatArray> {
+    private fun generateKernel(size: Int, theta: Float, gamma: Float, lambda: Float): Array<FloatArray> {
         val kernel = Array(size, {
             FloatArray(size)
         })
+        val fi = 0
+        val sigma = 0.56f*lambda
 
         for (x in 0 until size) {
             for (y in 0 until size) {
-                val coef = 2 * sigma * sigma
-                kernel[x][y] = exp(-(x * x + y * y) / coef) / (coef * PI).toFloat()
+                val (polarX, polarY) = convertToPolarCoordinates(x, y, theta)
+                kernel[x][y] = exp(-((polarX * polarX + gamma * gamma * polarY * polarY) / sigma * sigma) / 2) * cos(2 * PI * f(lambda) * polarX + fi).toFloat()
             }
         }
 
         return kernel
     }
+
+    private fun convertToPolarCoordinates(x: Int, y: Int, tetta: Float): Coordinate {
+        val polarX = x * cos(tetta) + y * sin(tetta)
+        val polarY = -x * sin(tetta) + y * cos(tetta)
+        return Coordinate(polarX, polarY)
+    }
+
+    private fun f(lambda: Float): Float {
+        return 1 / lambda
+    }
+
+    data class Coordinate(
+            val x: Float,
+            val y: Float
+    )
 }
