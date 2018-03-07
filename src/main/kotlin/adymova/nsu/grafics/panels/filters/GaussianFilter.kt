@@ -1,30 +1,103 @@
 package adymova.nsu.grafics.panels.filters
 
+import adymova.nsu.grafics.core.ImageContext
+import java.awt.GridLayout
 import java.awt.image.BufferedImage
+import javax.swing.*
 import kotlin.math.PI
 import kotlin.math.exp
 
+class GaussianFilterPanel(val imageContext: ImageContext) : JPanel() {
+    private val gaussianFilter = GaussianFilter()
+    private val kernelSizeSlider: JSlider = JSlider(JSlider.HORIZONTAL, 0, 10, 5)
+    private val sigmaSlider: JSlider = JSlider(JSlider.HORIZONTAL, 0, 10, 5)
+
+    init {
+        layout = GridLayout(0, 1)
+
+        border = BorderFactory.createTitledBorder("Gaussian")
+
+        addApplyButton()
+
+        addSliders()
+
+        addSlidersListeners()
+    }
+
+    private fun addApplyButton() {
+        val applyButton = JButton("Apply")
+        applyButton.addActionListener {
+            val image = imageContext.changedImage ?: return@addActionListener
+            gaussianFilter.apply(image, kernelSizeSlider.value, sigmaSlider.value / 10.0f)
+            imageContext.notifyImageUpdateListeners()
+        }
+        add(applyButton)
+    }
+
+    private fun addSlidersListeners() {
+        sigmaSlider.addChangeListener {
+            val image = imageContext.changedImage ?: return@addChangeListener
+            gaussianFilter.apply(image, kernelSizeSlider.value, sigmaSlider.value / 10.0f)
+        }
+        kernelSizeSlider.addChangeListener {
+            val image = imageContext.changedImage ?: return@addChangeListener
+            gaussianFilter.apply(image, kernelSizeSlider.value, sigmaSlider.value / 10.0f)
+
+        }
+    }
+
+    private fun addSliders() {
+        add(JLabel("sigma"))
+        sigmaSlider.majorTickSpacing = 1
+        sigmaSlider.paintTicks = true
+        sigmaSlider.paintLabels = true
+        add(sigmaSlider)
+
+        add(JLabel("kernal"))
+        kernelSizeSlider.minorTickSpacing = 1
+        kernelSizeSlider.majorTickSpacing = 3
+        kernelSizeSlider.paintTicks = true
+        kernelSizeSlider.paintLabels = true
+        add(kernelSizeSlider)
+    }
+
+}
+
 class GaussianFilter {
-    fun apply(bufferedImage: BufferedImage, kernelRadius: Int) {
-        val kernel = generateKernel(kernelRadius)
+    //todo debug image moving and lighting
+
+    fun apply(bufferedImage: BufferedImage, kernelSize: Int, sigma: Float) {
+        val kernel = generateKernel(kernelSize, sigma)
+        val kernelRadius = kernelSize / 2
 
         val intermediateImage = createIntermediateImage(bufferedImage, kernelRadius)
 
-        for (x in )
+        val resultRedArray = FloatArray(bufferedImage.height * bufferedImage.width)
+        val resultGreenArray = FloatArray(bufferedImage.height * bufferedImage.width)
+        val resultBlueArray = FloatArray(bufferedImage.height * bufferedImage.width)
+
+        for (y in kernelRadius until intermediateImage.height - kernelRadius) {
+            for (x in kernelRadius until intermediateImage.width - kernelRadius) {
+                resultRedArray[(y - kernelRadius) * bufferedImage.width + (x - kernelRadius)] =
+                        convolution(kernel, intermediateImage, x, y, ChanelType.R, kernelRadius)
+                resultGreenArray[(y - kernelRadius) * bufferedImage.width + (x - kernelRadius)] =
+                        convolution(kernel, intermediateImage, x, y, ChanelType.G, kernelRadius)
+                resultBlueArray[(y - kernelRadius) * bufferedImage.width + (x - kernelRadius)] =
+                        convolution(kernel, intermediateImage, x, y, ChanelType.B, kernelRadius)
+            }
+        }
+
+        applyResultToImageWithNormalization(resultRedArray, resultGreenArray, resultBlueArray, bufferedImage)
 
     }
 
-    private fun generateKernel(kernelRadius: Int): Array<FloatArray> {
-        val kernel = arrayOf(
-                FloatArray(kernelRadius),
-                FloatArray(kernelRadius),
-                FloatArray(kernelRadius)
-        )
+    private fun generateKernel(size: Int, sigma: Float): Array<FloatArray> {
+        val kernel = Array(size, {
+            FloatArray(size)
+        })
 
-        val sigma = 1.0f
-
-        for (x in 0 until kernelRadius) {
-            for (y in 0 until kernelRadius) {
+        for (x in 0 until size) {
+            for (y in 0 until size) {
                 val coef = 2 * sigma * sigma
                 kernel[x][y] = exp(-(x * x + y * y) / coef) / (coef * PI).toFloat()
             }
@@ -32,38 +105,4 @@ class GaussianFilter {
 
         return kernel
     }
-}
-
-inline fun convolveChanel(
-        matrix: Array<FloatArray>,
-        img: BufferedImage,
-        x: Int,
-        y: Int,
-        chanelType: ChanelType,
-        radius: Int
-) : Float {
-    var sum = 0f
-    for (currentY in (y - radius.. y + radius)) {
-        for (currentX in (x - radius.. x + radius)) {
-            val rgb = img.getRGB(currentX, currentY)
-            val chanelValue = selectChanel(chanelType, rgb)
-            val matrixX = currentX - x + radius
-            val matrixY = currentY - y + radius
-            val kernelVal = matrix[matrixX][matrixY]
-            sum += kernelVal * chanelValue
-        }
-    }
-    return sum
-}
-
-inline fun selectChanel(chanelType: ChanelType, rgb: Int) = when (chanelType) {
-    ChanelType.R -> getRed(rgb)
-    ChanelType.G -> getGreen(rgb)
-    ChanelType.B -> getBlue(rgb)
-}
-
-enum class ChanelType {
-    R,
-    G,
-    B
 }
