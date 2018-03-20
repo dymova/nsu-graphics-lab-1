@@ -46,9 +46,9 @@ class GaborFilterPanel(val imageContext: ImageContext) : JPanel() {
 
 class GaborFilter {
 
-    fun apply(bufferedImage: BufferedImage, tetta: Float, gamma: Float, lambda: Float, kernelSize: Int) {
-        println("$tetta $gamma $lambda")
-        val kernel = generateKernel(kernelSize, tetta, gamma, lambda)
+    fun apply(bufferedImage: BufferedImage, theta: Float, gamma: Float, lambda: Float, kernelSize: Int) {
+        println("$theta $gamma $lambda")
+        val kernel = generateKernel(kernelSize, theta, gamma, lambda)
         val kernelRadius = kernelSize / 2
 
         val intermediateImage = createIntermediateImage(bufferedImage, kernelRadius)
@@ -83,7 +83,7 @@ class GaborFilter {
         for (x in 0 until size) {
             for (y in 0 until size) {
                 val (polarX, polarY) = convertToPolarCoordinates(x, y, theta)
-                kernel[x][y] = exp(-((polarX * polarX + gamma * gamma * polarY * polarY) / sigma * sigma) / 2) * cos(2 * PI * f(lambda) * polarX + fi).toFloat()
+                kernel[x][y] = exp(-(polarX * polarX + gamma * gamma * polarY * polarY) / (sigma * sigma* 2)) * cos(2 * PI * polarX / lambda + fi).toFloat()
             }
         }
 
@@ -94,10 +94,6 @@ class GaborFilter {
         val polarX = x * cos(tetta) + y * sin(tetta)
         val polarY = -x * sin(tetta) + y * cos(tetta)
         return Coordinate(polarX, polarY)
-    }
-
-    private fun f(lambda: Float): Float {
-        return 1 / lambda
     }
 
     data class Coordinate(

@@ -9,7 +9,7 @@ import kotlin.math.exp
 
 class GaussianFilterPanel(val imageContext: ImageContext) : JPanel() {
     private val gaussianFilter = GaussianFilter()
-    private val kernelSizeSlider: JSlider = JSlider(JSlider.HORIZONTAL, 0, 10, 3)
+    private val kernelSizeSlider: JSlider = JSlider(JSlider.HORIZONTAL, 1, 10, 3)
     private val sigmaSlider: JSlider = JSlider(JSlider.HORIZONTAL, 0, 10, 5)
 
     init {
@@ -20,8 +20,6 @@ class GaussianFilterPanel(val imageContext: ImageContext) : JPanel() {
         addApplyButton()
 
         addSliders()
-
-//        addSlidersListeners()
     }
 
     private fun addApplyButton() {
@@ -34,27 +32,15 @@ class GaussianFilterPanel(val imageContext: ImageContext) : JPanel() {
         add(applyButton)
     }
 
-    private fun addSlidersListeners() {
-        sigmaSlider.addChangeListener {
-            val image = imageContext.changedImage ?: return@addChangeListener
-            gaussianFilter.apply(image, kernelSizeSlider.value, sigmaSlider.value / 10.0f)
-        }
-        kernelSizeSlider.addChangeListener {
-            val image = imageContext.changedImage ?: return@addChangeListener
-            gaussianFilter.apply(image, kernelSizeSlider.value, sigmaSlider.value / 10.0f)
-
-        }
-    }
-
     private fun addSliders() {
-        add(JLabel("sigma"))
+        add(JLabel("sigma, 10^(-1)"))
         sigmaSlider.majorTickSpacing = 1
         sigmaSlider.paintTicks = true
         sigmaSlider.paintLabels = true
         add(sigmaSlider)
 
         add(JLabel("kernal"))
-        kernelSizeSlider.majorTickSpacing = 1
+        kernelSizeSlider.majorTickSpacing = 2
         kernelSizeSlider.paintTicks = true
         kernelSizeSlider.paintLabels = true
         kernelSizeSlider.snapToTicks = true
@@ -64,7 +50,7 @@ class GaussianFilterPanel(val imageContext: ImageContext) : JPanel() {
 }
 
 class GaussianFilter {
-    //todo debug image moving and lighting
+    //todo debug image moving
 
     fun apply(bufferedImage: BufferedImage, kernelSize: Int, sigma: Float) {
         val kernel = generateKernel(kernelSize, sigma)
