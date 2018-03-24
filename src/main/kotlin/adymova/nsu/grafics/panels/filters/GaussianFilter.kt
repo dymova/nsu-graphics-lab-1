@@ -10,8 +10,8 @@ import kotlin.math.exp
 
 class GaussianFilterPanel(val imageContext: ImageContext) : JPanel() {
     private val gaussianFilter = GaussianFilter()
-    private val kernelSizeSlider: JSlider = JSlider(JSlider.HORIZONTAL, 1, 10, 3)
-    private val sigmaSlider: JSlider = JSlider(JSlider.HORIZONTAL, 0, 10, 5)
+    private val kernelSizeSlider: JSlider = JSlider(JSlider.HORIZONTAL, 1, 10, 5)
+    private val sigmaSlider: JSlider = JSlider(JSlider.HORIZONTAL, 0, 10, 8)
 
     init {
         layout = GridLayout(0, 1)
@@ -78,22 +78,7 @@ class GaussianFilter {
         applyResultToImage(resultRedArray, resultGreenArray, resultBlueArray, bufferedImage)
     }
 
-//    private fun generateKernel(size: Int, sigma: Float): Array<FloatArray> {
-//        val kernel = Array(size, {
-//            FloatArray(size)
-//        })
-//
-//        for (x in 0 until size) {
-//            for (y in 0 until size) {
-//                val coef = 2 * sigma * sigma
-//                kernel[x][y] = exp(-(x * x + y * y) / coef) / (coef * PI).toFloat()
-//            }
-//        }
-//
-//        return kernel
-//    }
-
-    fun generateKernel(size: Int, sigma: Float): Array<FloatArray> {
+    private fun generateKernel(size: Int, sigma: Float): Array<FloatArray> {
         val kernel = Array(size, {
             FloatArray(size)
         })
@@ -112,7 +97,6 @@ class GaussianFilter {
 
         for (x in (0 until size)) {
             for (y in (0 until size)) {
-//                kernel.setXY(x, y, kernel.getXY(x, y) / sum)
                 kernel[x][y] = kernel[x][y] / sum
             }
         }

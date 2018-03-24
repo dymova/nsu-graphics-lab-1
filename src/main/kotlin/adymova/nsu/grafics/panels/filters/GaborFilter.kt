@@ -26,7 +26,6 @@ class GaborFilterPanel(val imageContext: ImageContext) : JPanel() {
         val applyButton = JButton("Apply")
         applyButton.addActionListener {
             val image = imageContext.changedImage ?: return@addActionListener
-            //todo add kernel size slider
             gaborFilter.apply(image, tettaSlider.value.toFloat(), 1.0f, 2.0f, 5)
             imageContext.notifyImageUpdateListeners()
         }
@@ -47,7 +46,6 @@ class GaborFilterPanel(val imageContext: ImageContext) : JPanel() {
 class GaborFilter {
 
     fun apply(bufferedImage: BufferedImage, theta: Float, gamma: Float, lambda: Float, kernelSize: Int) {
-        println("$theta $gamma $lambda")
         val kernel = generateKernel(kernelSize, theta, gamma, lambda)
         val kernelRadius = kernelSize / 2
 
@@ -69,8 +67,7 @@ class GaborFilter {
             }
         }
 
-        applyResultToImage(resultRedArray, resultGreenArray, resultBlueArray, bufferedImage)
-
+        applyResultToImageWithNormalization(resultRedArray, resultGreenArray, resultBlueArray, bufferedImage)
     }
 
     private fun generateKernel(size: Int, theta: Float, gamma: Float, lambda: Float): Array<FloatArray> {
@@ -82,13 +79,27 @@ class GaborFilter {
 
         for (x in 0 until size) {
             for (y in 0 until size) {
-                val (polarX, polarY) = convertToPolarCoordinates(x, y, theta)
+                val (polarX, polarY) = convertToPolarCoordinates(x - kernel.size/2, y - kernel.size/2, theta)
                 kernel[x][y] = exp(-(polarX * polarX + gamma * gamma * polarY * polarY) / (sigma * sigma * 2)) * cos(2 * PI * polarX / lambda + fi).toFloat()
             }
         }
 
         return kernel
     }
+//    private fun showMatrix(matrix: Array<FloatArray>): BufferedImage {
+//        val min = matrix.values.min()!!
+//        val max = matrix.values.max()!! - min
+//        val size = matrix.size
+//        val img = BufferedImage(size, size, BufferedImage.TYPE_INT_RGB)
+//        for (y in (0 until size)) {
+//            for (x in (0 until size)) {
+//                val value = matrix[x][y] - min
+//                val brightness = (value / max * 255.0f).toInt()
+//                img.setRGB(x, y, Color(brightness, brightness, brightness).rgb)
+//            }
+//        }
+//        return img
+//    }
 
     private fun convertToPolarCoordinates(x: Int, y: Int, tetta: Float): Coordinate {
         val thetaInRad = Math.toRadians(tetta.toDouble())
