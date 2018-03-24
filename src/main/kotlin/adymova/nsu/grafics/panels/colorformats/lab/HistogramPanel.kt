@@ -1,4 +1,4 @@
-package adymova.nsu.grafics.panels.general.lab
+package adymova.nsu.grafics.panels.colorformats.lab
 
 import adymova.nsu.grafics.core.ChangeHsvListener
 import adymova.nsu.grafics.core.ImageContext

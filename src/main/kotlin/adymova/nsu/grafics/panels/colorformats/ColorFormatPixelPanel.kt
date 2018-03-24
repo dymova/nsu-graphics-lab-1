@@ -1,4 +1,4 @@
-package adymova.nsu.grafics.panels.general
+package adymova.nsu.grafics.panels.colorformats
 
 import javax.swing.JLabel
 import javax.swing.JPanel

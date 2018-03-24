@@ -3,7 +3,10 @@ package adymova.nsu.grafics.panels.general
 import adymova.nsu.grafics.core.ChangeSelectionListener
 import adymova.nsu.grafics.core.ImageContext
 import adymova.nsu.grafics.core.MousePositionChangedListener
-import adymova.nsu.grafics.panels.general.lab.LabPanel
+import adymova.nsu.grafics.panels.colorformats.KeyValuePanel
+import adymova.nsu.grafics.panels.colorformats.hsv.HvsPanel
+import adymova.nsu.grafics.panels.colorformats.lab.LabPanel
+import adymova.nsu.grafics.panels.colorformats.rgb.RgbPanel
 import java.awt.Dimension
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout

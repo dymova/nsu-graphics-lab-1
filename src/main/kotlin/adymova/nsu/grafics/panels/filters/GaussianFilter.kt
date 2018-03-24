@@ -3,6 +3,7 @@ package adymova.nsu.grafics.panels.filters
 import adymova.nsu.grafics.core.ImageContext
 import java.awt.GridLayout
 import java.awt.image.BufferedImage
+import java.lang.Math.pow
 import javax.swing.*
 import kotlin.math.PI
 import kotlin.math.exp
@@ -74,21 +75,47 @@ class GaussianFilter {
             }
         }
 
-        applyResultToImageWithNormalization(resultRedArray, resultGreenArray, resultBlueArray, bufferedImage)
+        applyResultToImage(resultRedArray, resultGreenArray, resultBlueArray, bufferedImage)
     }
 
-    private fun generateKernel(size: Int, sigma: Float): Array<FloatArray> {
+//    private fun generateKernel(size: Int, sigma: Float): Array<FloatArray> {
+//        val kernel = Array(size, {
+//            FloatArray(size)
+//        })
+//
+//        for (x in 0 until size) {
+//            for (y in 0 until size) {
+//                val coef = 2 * sigma * sigma
+//                kernel[x][y] = exp(-(x * x + y * y) / coef) / (coef * PI).toFloat()
+//            }
+//        }
+//
+//        return kernel
+//    }
+
+    fun generateKernel(size: Int, sigma: Float): Array<FloatArray> {
         val kernel = Array(size, {
             FloatArray(size)
         })
 
-        for (x in 0 until size) {
-            for (y in 0 until size) {
-                val coef = 2 * sigma * sigma
-                kernel[x][y] = exp(-(x * x + y * y) / coef) / (coef * PI).toFloat()
+        val mean = size / 2.0
+        var sum = 0.0f // For accumulating the kernel values
+        for (x in (0 until size)) {
+            for (y in (0 until size)) {
+                val value = (exp(-0.5 * (pow((x - mean) / sigma, 2.0) + pow((y - mean) / sigma, 2.0))) / (2 * PI * sigma * sigma)).toFloat()
+                kernel[x][y] = value
+
+                // Accumulate the kernel values
+                sum += value
             }
         }
 
+        for (x in (0 until size)) {
+            for (y in (0 until size)) {
+//                kernel.setXY(x, y, kernel.getXY(x, y) / sum)
+                kernel[x][y] = kernel[x][y] / sum
+            }
+        }
         return kernel
     }
 }

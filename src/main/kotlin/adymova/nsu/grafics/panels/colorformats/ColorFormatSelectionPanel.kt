@@ -1,10 +1,16 @@
-package adymova.nsu.grafics.panels.general
+package adymova.nsu.grafics.panels.colorformats
 
 import adymova.nsu.grafics.core.ImageContext
 import adymova.nsu.grafics.core.rgbToHsv
 import adymova.nsu.grafics.core.rgbToLab
+import adymova.nsu.grafics.panels.general.hsv
+import adymova.nsu.grafics.panels.general.lab
+import adymova.nsu.grafics.panels.general.rgb
 import java.awt.Color
-import javax.swing.*
+import javax.swing.BoxLayout
+import javax.swing.JPanel
+import javax.swing.JScrollPane
+import javax.swing.JTextArea
 
 class ColorFormatSelectionPanel(private val imageContext: ImageContext, private val format: String) : JPanel() {
 

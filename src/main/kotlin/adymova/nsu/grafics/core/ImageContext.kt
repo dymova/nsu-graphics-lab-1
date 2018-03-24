@@ -1,6 +1,6 @@
 package adymova.nsu.grafics.core
 
-import adymova.nsu.grafics.panels.general.middle
+import adymova.nsu.grafics.panels.colorformats.hsv.middle
 import java.awt.Rectangle
 import java.awt.event.MouseEvent
 import java.awt.image.BufferedImage
@@ -8,7 +8,7 @@ import java.awt.image.BufferedImage
 class ImageContext {
     var originalImage: BufferedImage? = null
     var selection: Rectangle? = null
-    var changedImage : BufferedImage? = null
+    var changedImage: BufferedImage? = null
     var imageHsv: Hsv = Hsv(middle.toDouble(), middle.toDouble(), middle.toDouble())
 
     private var changeHsvListeners: MutableSet<ChangeHsvListener> = mutableSetOf()
@@ -22,7 +22,7 @@ class ImageContext {
         changeHsvListeners.add(changeHsvListener)
     }
 
-    fun notifyHsvListeners(){
+    fun notifyHsvListeners() {
         changeHsvListeners.forEach { it.imageHsvChanged() }
     }
 
@@ -30,12 +30,14 @@ class ImageContext {
         changeImageListeners.add(listener)
     }
 
-    fun notifyChangeImageListeners(){
+    fun notifyChangeImageListeners() {
         changeImageListeners.forEach { it.imageChanged() }
     }
+
     fun subscribeSelectionListener(listener: ChangeSelectionListener) {
         selectionListeners.add(listener)
     }
+
     fun notifySelectionListeners() {
         selectionListeners.forEach { it.selectionChanged() }
     }
@@ -44,7 +46,7 @@ class ImageContext {
         mousePositionListeners.add(listener)
     }
 
-    fun notifyMousePositionListener(e: MouseEvent   ) {
+    fun notifyMousePositionListener(e: MouseEvent) {
         mousePositionListeners.forEach { it.mouseMoved(e) }
     }
 
@@ -52,7 +54,7 @@ class ImageContext {
         imageUpdateListeners.add(listener)
     }
 
-    fun notifyImageUpdateListeners(  ) {
+    fun notifyImageUpdateListeners() {
         imageUpdateListeners.forEach { it.imageUpdated() }
     }
 }

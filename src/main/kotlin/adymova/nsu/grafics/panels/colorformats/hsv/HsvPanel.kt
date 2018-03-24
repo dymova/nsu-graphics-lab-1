@@ -1,8 +1,11 @@
-package adymova.nsu.grafics.panels.general
+package adymova.nsu.grafics.panels.colorformats.hsv
 
 import adymova.nsu.grafics.core.ChangeImageListener
 import adymova.nsu.grafics.core.ImageContext
 import adymova.nsu.grafics.core.rgbToHsv
+import adymova.nsu.grafics.panels.colorformats.ColorFormatPixelPanel
+import adymova.nsu.grafics.panels.colorformats.ColorFormatSelectionPanel
+import adymova.nsu.grafics.panels.general.hsv
 import java.awt.Color
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout

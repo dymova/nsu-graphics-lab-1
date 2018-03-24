@@ -1,9 +1,9 @@
-package adymova.nsu.grafics.panels.general.lab
+package adymova.nsu.grafics.panels.colorformats.lab
 
 import adymova.nsu.grafics.core.ImageContext
 import adymova.nsu.grafics.core.rgbToLab
-import adymova.nsu.grafics.panels.general.ColorFormatPixelPanel
-import adymova.nsu.grafics.panels.general.ColorFormatSelectionPanel
+import adymova.nsu.grafics.panels.colorformats.ColorFormatPixelPanel
+import adymova.nsu.grafics.panels.colorformats.ColorFormatSelectionPanel
 import adymova.nsu.grafics.panels.general.lab
 import java.awt.Color
 import java.awt.GridBagConstraints

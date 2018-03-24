@@ -1,6 +1,9 @@
-package adymova.nsu.grafics.panels.general
+package adymova.nsu.grafics.panels.colorformats.rgb
 
 import adymova.nsu.grafics.core.ImageContext
+import adymova.nsu.grafics.panels.colorformats.ColorFormatPixelPanel
+import adymova.nsu.grafics.panels.colorformats.ColorFormatSelectionPanel
+import adymova.nsu.grafics.panels.general.rgb
 import java.awt.Color
 import java.awt.GridLayout
 import javax.swing.BorderFactory
@@ -19,11 +22,11 @@ class RgbPanel(imageContext: ImageContext) : JPanel() {
         add(rgbSelectionPanel)
     }
 
-     fun updateSelectionValues() {
+    fun updateSelectionValues() {
         thread { rgbSelectionPanel.updateValues() }
     }
 
-     fun updateCursorValue(rgb: Int) {
+    fun updateCursorValue(rgb: Int) {
         val color = Color(rgb)
         rgbPixelPanel.updateValues(color.red.toString(), color.green.toString(), color.blue.toString())
     }

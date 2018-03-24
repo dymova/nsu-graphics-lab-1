@@ -4,6 +4,7 @@ import adymova.nsu.grafics.core.ChangeHsvListener
 import adymova.nsu.grafics.core.ImageContext
 import adymova.nsu.grafics.core.ImageUpdateListener
 import adymova.nsu.grafics.core.rgbToHsv
+import adymova.nsu.grafics.panels.colorformats.hsv.middle
 import java.awt.*
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent

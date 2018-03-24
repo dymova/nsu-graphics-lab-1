@@ -1,8 +1,8 @@
 package adymova.nsu.grafics.core
 
 import adymova.nsu.grafics.panels.SettingsPanel
+import adymova.nsu.grafics.panels.colorformats.hsv.middle
 import adymova.nsu.grafics.panels.general.ImagePanel
-import adymova.nsu.grafics.panels.general.middle
 import java.awt.Dimension
 import java.awt.GridBagConstraints
 import java.awt.GridBagConstraints.BOTH

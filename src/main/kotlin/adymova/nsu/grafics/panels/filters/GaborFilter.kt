@@ -26,7 +26,7 @@ class GaborFilterPanel(val imageContext: ImageContext) : JPanel() {
         val applyButton = JButton("Apply")
         applyButton.addActionListener {
             val image = imageContext.changedImage ?: return@addActionListener
-                    //todo add kernel size slider
+            //todo add kernel size slider
             gaborFilter.apply(image, tettaSlider.value.toFloat(), 1.0f, 2.0f, 5)
             imageContext.notifyImageUpdateListeners()
         }
@@ -69,7 +69,7 @@ class GaborFilter {
             }
         }
 
-        applyResultToImageWithNormalization(resultRedArray, resultGreenArray, resultBlueArray, bufferedImage)
+        applyResultToImage(resultRedArray, resultGreenArray, resultBlueArray, bufferedImage)
 
     }
 
@@ -78,12 +78,12 @@ class GaborFilter {
             FloatArray(size)
         })
         val fi = 0
-        val sigma = 0.56f*lambda
+        val sigma = 0.56f * lambda
 
         for (x in 0 until size) {
             for (y in 0 until size) {
                 val (polarX, polarY) = convertToPolarCoordinates(x, y, theta)
-                kernel[x][y] = exp(-(polarX * polarX + gamma * gamma * polarY * polarY) / (sigma * sigma* 2)) * cos(2 * PI * polarX / lambda + fi).toFloat()
+                kernel[x][y] = exp(-(polarX * polarX + gamma * gamma * polarY * polarY) / (sigma * sigma * 2)) * cos(2 * PI * polarX / lambda + fi).toFloat()
             }
         }
 
@@ -91,9 +91,10 @@ class GaborFilter {
     }
 
     private fun convertToPolarCoordinates(x: Int, y: Int, tetta: Float): Coordinate {
-        val polarX = x * cos(tetta) + y * sin(tetta)
-        val polarY = -x * sin(tetta) + y * cos(tetta)
-        return Coordinate(polarX, polarY)
+        val thetaInRad = Math.toRadians(tetta.toDouble())
+        val polarX = x * cos(thetaInRad) + y * sin(thetaInRad)
+        val polarY = -x * sin(thetaInRad) + y * cos(thetaInRad)
+        return Coordinate(polarX.toFloat(), polarY.toFloat())
     }
 
     data class Coordinate(
