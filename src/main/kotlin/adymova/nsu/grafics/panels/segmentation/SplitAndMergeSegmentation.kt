@@ -4,6 +4,18 @@ import adymova.nsu.grafics.core.Lab
 import adymova.nsu.grafics.core.rgbToLab
 import java.awt.Color
 import java.awt.image.BufferedImage
+import java.io.File
+import java.util.*
+import javax.imageio.ImageIO
+
+fun main(args: Array<String>) {
+
+    val file = File("/Users/nastya/lena64.png")
+    val bufferedImage = ImageIO.read(file)
+    SplitAndMergeSegmentation().apply(BufferedImg(bufferedImage), 5.0, { lab1, lab2 -> computeCiede2000Metrics(lab1, lab2) })
+    ImageIO.write(bufferedImage, "png", File("/Users/nastya/lena64_seg.png"))
+
+}
 
 class SplitAndMergeSegmentation {
 
@@ -12,37 +24,55 @@ class SplitAndMergeSegmentation {
 
         val width = bufferedImage.getWidth()
         val height = bufferedImage.getHeight()
-        val regionsMap = IntArray(width * height)
         var currentRegionId = 1
 
         val root = Node(0, 0, width, height, imageAsLabArrays, null)
 
+        val idToRegionMap = hashMapOf<Int, MutableList<Node>>()
+
         root.pass { it.splitIfPossible(maxDifference, metrics) }
         root.leafPass {
-            fillRegionsMap(it, regionsMap, width, currentRegionId)
+            fillRegionsMap(it, currentRegionId, idToRegionMap)
             currentRegionId++
         }
-    }
 
-    private fun fillRegionsMap(it: Node, regionsMap: IntArray, width: Int, currentRegionId: Int) {
-        for (x in it.xStart until it.xEnd) {
-            for (y in it.yEnd until it.yEnd) {
-                regionsMap[y * width + y] = currentRegionId
+        //merge
+        root.leafPass {
+            val currentNode = it
+            val neighbors = it.findNeigbors()
+            neighbors.left.forEach {
+                currentNode.mergeIfPossible(it, idToRegionMap, metrics, maxDifference)
+            }
+            neighbors.right.forEach {
+                currentNode.mergeIfPossible(it, idToRegionMap, metrics, maxDifference)
+            }
+            neighbors.top.forEach {
+                currentNode.mergeIfPossible(it, idToRegionMap, metrics, maxDifference)
+            }
+            neighbors.bottom.forEach {
+                currentNode.mergeIfPossible(it, idToRegionMap, metrics, maxDifference)
             }
         }
+
+        bufferedImage.applySegmentation(idToRegionMap.values)
+    }
+
+    private fun fillRegionsMap(it: Node, currentRegionId: Int, idToRegionMap: HashMap<Int, MutableList<Node>>) {
+        idToRegionMap[currentRegionId] = arrayListOf(it)
+        it.regionId = currentRegionId
     }
 }
 
 
 class Node(
         val xStart: Int,
-        private val yStart: Int,
+        val yStart: Int,
         val xEnd: Int,
         val yEnd: Int,
         private val imageAsLabArrays: ImageAsLabArrays,
-        val parent: Node?
+        private val parent: Node?
 ) {
-    var passedByMergeAlgorithm = false
+    var regionId: Int = 0
     var children: Array<Node> = emptyArray()
     private val leftTopChildIndex = 0
     private val rightTopChildIndex = 1
@@ -194,6 +224,42 @@ class Node(
         }
     }
 
+    fun mergeIfPossible(neighbor: Node, idToRegionMap: HashMap<Int, MutableList<Node>>, metrics: (Lab, Lab) -> Double, maxDifference: Double) {
+        if (neighbor.regionId != regionId && notBreakHomogeneity(neighbor, metrics, maxDifference)) {
+            merge(idToRegionMap, neighbor)
+        }
+    }
+
+    private fun merge(idToRegionMap: HashMap<Int, MutableList<Node>>, neighbor: Node) {
+        //поменть всем регионам id
+        val neighborIdRegions = idToRegionMap[neighbor.regionId] ?: throw IllegalStateException()
+        val currentNodeRegionIdRegions = idToRegionMap[regionId] ?: throw IllegalStateException()
+
+
+        for (node in neighborIdRegions) {
+            node.regionId = regionId
+        }
+        currentNodeRegionIdRegions.addAll(neighborIdRegions)
+        neighborIdRegions.clear()
+    }
+
+
+    private fun notBreakHomogeneity(neighbor: Node, metrics: (Lab, Lab) -> Double, maxDifference: Double): Boolean {
+        for (currentNodeX in xStart until xEnd) {
+            for (currentNodeY in yStart until yEnd) {
+                for (neighborX in neighbor.xStart until neighbor.xEnd) {
+                    for (neighborY in neighbor.yStart until neighbor.yEnd) {
+                        val currentNodeLab = imageAsLabArrays.getLabByXY(currentNodeX, currentNodeY)
+                        val neighborLab = neighbor.imageAsLabArrays.getLabByXY(neighborX, neighborY)
+                        if (metrics(currentNodeLab, neighborLab) >= maxDifference) {
+                            return false
+                        }
+                    }
+                }
+            }
+        }
+        return true
+    }
 }
 
 class Neighbors {
@@ -238,6 +304,7 @@ interface Image {
     fun getHeight(): Int
 
     fun getRGB(x: Int, y: Int): Int
+    fun applySegmentation(values: MutableCollection<MutableList<Node>>)
 }
 
 class BufferedImg(val bufferedImage: BufferedImage) : Image {
@@ -252,9 +319,39 @@ class BufferedImg(val bufferedImage: BufferedImage) : Image {
     override fun getRGB(x: Int, y: Int): Int {
         return bufferedImage.getRGB(x, y)
     }
+
+    override fun applySegmentation(values: MutableCollection<MutableList<Node>>) {
+        val rand = Random()
+
+        for (value in values) {
+            val color = getRandomColor(rand)
+            for (node in value) {
+                applySegmentationToNode(node, color)
+            }
+        }
+    }
+
+    private fun getRandomColor(rand: Random): Color {
+        val r = rand.nextFloat() / 2f + 0.5f
+        val g = rand.nextFloat() / 2f + 0.5f
+        val b = rand.nextFloat() / 2f + 0.5f
+        return Color(r, g, b)
+    }
+
+    private fun applySegmentationToNode(node: Node, color: Color) {
+        for (x in node.xStart until node.xEnd) {
+            for (y in node.yStart until node.yEnd) {
+                bufferedImage.setRGB(x, y, color.rgb)
+            }
+        }
+    }
 }
 
 class PseudoImage(val image: Array<IntArray>) : Image {
+    override fun applySegmentation(values: MutableCollection<MutableList<Node>>) {
+        println("PseudoImage.applySegmentation was invoked")
+    }
+
     override fun getWidth(): Int {
         return image[0].size
     }
