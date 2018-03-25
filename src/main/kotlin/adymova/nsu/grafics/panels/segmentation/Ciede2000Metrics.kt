@@ -10,13 +10,13 @@ import kotlin.math.sqrt
 const val q = 6103515625
 
 fun computeCiede2000Metrics(lab1: Lab, lab2: Lab): Double {
-    val l1 = lab1.l
-    val a1 = lab1.a
-    val b1 = lab1.b
+    val l1 = lab1.l.toDouble()
+    val a1 = lab1.a.toDouble()
+    val b1 = lab1.b.toDouble()
 
-    val l2 = lab2.l
-    val a2 = lab2.a
-    val b2 = lab2.b
+    val l2 = lab2.l.toDouble()
+    val a2 = lab2.a.toDouble()
+    val b2 = lab2.b.toDouble()
 
     val g = computeG(a1, b1, a2, b2)
     val a1Hatch = computeAHatch(g, a1)
@@ -37,7 +37,6 @@ fun computeCiede2000Metrics(lab1: Lab, lab2: Lab): Double {
     val cLineHatch = (c1Hatch + c2Hatch) / 2
     val hLineHatch = computeHLineHatch(cHatchProduct, h1Hatch, h2Hatch)
     val t = computeT(hLineHatch)
-    //todo check braces
 
     val sl = computeSl(lLineHatch)
     val sc = computeSc(cLineHatch)

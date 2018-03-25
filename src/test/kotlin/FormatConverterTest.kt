@@ -54,9 +54,9 @@ class FormatConverterTest {
 
         println("Actual: (${newValue.l}, ${newValue.a}, ${newValue.b})")
         println("Expected: (${expectedValue.l}, ${expectedValue.a}, ${expectedValue.b})")
-        assertDoubleEquals(newValue.l, expectedValue.l)
-        assertDoubleEquals(newValue.a, expectedValue.a)
-        assertDoubleEquals(newValue.b, expectedValue.b)
+        assertThat(newValue.l).isCloseTo(expectedValue.l, Offset.offset(0.2f))
+        assertThat(newValue.a).isCloseTo(expectedValue.a, Offset.offset(0.2f))
+        assertThat(newValue.b).isCloseTo(expectedValue.b, Offset.offset(0.2f))
     }
 
     companion object {
@@ -88,9 +88,9 @@ class FormatConverterTest {
         @JvmStatic
         fun rgbAndLabProvider(): Stream<Arguments> {
             return Stream.of(
-                    Arguments.of(Color(0, 0, 0), Lab(0.0, 0.0, 0.0)),
-                    Arguments.of(Color(255, 255, 255), Lab(100.0, 0.005, -0.01)),
-                    Arguments.of(Color(128, 0, 128), Lab(29.7, 58.93, -36.49))
+                    Arguments.of(Color(0, 0, 0), Lab(0.0f, 0.0f, 0.0f)),
+                    Arguments.of(Color(255, 255, 255), Lab(100.0f, 0.005f, -0.01f)),
+                    Arguments.of(Color(128, 0, 128), Lab(29.7f, 58.93f, -36.49f))
             )
         }
 

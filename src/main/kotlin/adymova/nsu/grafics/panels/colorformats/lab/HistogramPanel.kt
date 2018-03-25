@@ -38,15 +38,15 @@ class HistogramPanel(private val imageContext: ImageContext) : JPanel(), ChangeH
     }
 
     private fun updateHistogram() {
-        histogram = Histogram(imageToDoubleArray())
+        histogram = Histogram(imageToFloatArray())
         repaint()
 
     }
 
-    private fun imageToDoubleArray(): DoubleArray {
+    private fun imageToFloatArray(): FloatArray {
         val image = imageContext.changedImage
-        image ?: return doubleArrayOf()
-        val result = DoubleArray(image.width * image.height)
+        image ?: return floatArrayOf()
+        val result = FloatArray(image.width * image.height)
         for (y in 0 until imageContext.changedImage!!.height) {
             for (x in 0 until imageContext.changedImage!!.width) {
                 val rgb = Color(imageContext.changedImage!!.getRGB(x, y))
@@ -87,7 +87,7 @@ class HistogramPanel(private val imageContext: ImageContext) : JPanel(), ChangeH
 
 const val stepsCount = 40
 
-class Histogram(values: DoubleArray) {
+class Histogram(values: FloatArray) {
     val max = values.max() ?: throw IllegalStateException()
     val min = values.min() ?: throw IllegalStateException()
     val diff = max - min
@@ -98,7 +98,7 @@ class Histogram(values: DoubleArray) {
 
     init {
         for (value in values) {
-            var bucketIndex = Math.floor((value - min) / step).toInt()
+            var bucketIndex = Math.floor((value - min) / step.toDouble()).toInt()
             if (bucketIndex >= stepsCount) {
                 bucketIndex = stepsCount - 1
             }

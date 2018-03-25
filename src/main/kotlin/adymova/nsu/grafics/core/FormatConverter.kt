@@ -32,20 +32,20 @@ fun rgbToHsv(rgb: Color): Hsv {
 }
 
 fun rgbToXyz(rgb: Color): Xyz {
-    val r = rgb.red / 255.0
-    val g = rgb.green / 255.0
-    val b = rgb.blue / 255.0
+    val r = rgb.red / 255.0f
+    val g = rgb.green / 255.0f
+    val b = rgb.blue / 255.0f
 
     val xyzVector = arrayOf(
-            doubleArrayOf(r),
-            doubleArrayOf(g),
-            doubleArrayOf(b)
+            floatArrayOf(r),
+            floatArrayOf(g),
+            floatArrayOf(b)
     )
 
     val m = arrayOf(
-            doubleArrayOf(0.5767309, 0.1855540, 0.1881852),
-            doubleArrayOf(0.2973769, 0.6273491, 0.0752741),
-            doubleArrayOf(0.0270343, 0.0706872, 0.9911085)
+            floatArrayOf(0.5767309f, 0.1855540f, 0.1881852f),
+            floatArrayOf(0.2973769f, 0.6273491f, 0.0752741f),
+            floatArrayOf(0.0270343f, 0.0706872f, 0.9911085f)
     )
 
     val product = multiplyMatrices(m, xyzVector, 3, 1)
@@ -53,13 +53,13 @@ fun rgbToXyz(rgb: Color): Xyz {
     return Xyz(product[0][0], product[1][0], product[2][0])
 }
 
-private fun xyzToLab(x: Double, y: Double, z: Double): Lab {
+private fun xyzToLab(x: Float, y: Float, z: Float): Lab {
 //    val xn = 0.31382
 //    val yn = 0.331
 //    val zn = 0.35518
-    val xn = 0.9504
-    val yn = 1.0000
-    val zn = 1.0888
+    val xn = 0.9504f
+    val yn = 1.0000f
+    val zn = 1.0888f
 
     val l = 116 * f(y / yn) - 16
     val a = 500 * (f(x / xn) - f(y / yn))
@@ -73,18 +73,18 @@ fun rgbToLab(color: Color): Lab {
     return xyzToLab(xyz.x, xyz.y, xyz.z)
 }
 
-private fun f(x: Double): Double {
+private fun f(x: Float): Float {
     return if (x > Math.pow(6.0 / 29, 3.0)) {
-        Math.pow(x, 1.0 / 3)
+        Math.pow(x.toDouble(), 1.0 / 3).toFloat()
     } else {
-        (1.0 / 3) * Math.pow(29.0 / 6, 2.0) * x + (4.0 / 29)
+        (1.0f / 3) * Math.pow(29.0 / 6, 2.0).toFloat() * x + (4.0f / 29)
     }
 }
 
 
-private fun multiplyMatrices(firstMatrix: Array<DoubleArray>, secondMatrix: Array<DoubleArray>,
-                             firstMatrixColumns: Int, secondMatrixColumns: Int): Array<DoubleArray> {
-    val result = Array(firstMatrix.size) { DoubleArray(secondMatrixColumns) }
+private fun multiplyMatrices(firstMatrix: Array<FloatArray>, secondMatrix: Array<FloatArray>,
+                             firstMatrixColumns: Int, secondMatrixColumns: Int): Array<FloatArray> {
+    val result = Array(firstMatrix.size) { FloatArray(secondMatrixColumns) }
     for (i in 0 until firstMatrix.size) {
         for (j in 0 until secondMatrixColumns) {
             for (k in 0 until firstMatrixColumns) {
@@ -134,13 +134,33 @@ class Hsv(
 }
 
 data class Xyz(
-        val x: Double,
-        val y: Double,
-        val z: Double
+        val x: Float,
+        val y: Float,
+        val z: Float
 )
 
-data class Lab(
-        val l: Double,
-        val a: Double,
-        val b: Double
-)
+class Lab(
+        val l: Float,
+        val a: Float,
+        val b: Float
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Lab
+
+        if (l - other.l > 0.004) return false
+        if (a - other.a > 0.004) return false
+        if (b - other.b > 0.004) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = l.hashCode()
+        result = 31 * result + a.hashCode()
+        result = 31 * result + b.hashCode()
+        return result
+    }
+}
