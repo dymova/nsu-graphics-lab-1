@@ -10,23 +10,23 @@ fun rgbToHsv(rgb: Color): Hsv {
     val min = minOf(r, g, b)
 
     var h = when {
-        max == r && g >= b -> 60 * (g - b) / (max - min).toDouble()
-        max == r && g < b -> 60 * (g - b) / (max - min).toDouble() + 360
-        max == g -> 60 * (b - r) / (max - min).toDouble() + 120
-        max == b -> 60 * (r - g) / (max - min).toDouble() + 240
+        max == r && g >= b -> 60 * (g - b) / (max - min).toFloat()
+        max == r && g < b -> 60 * (g - b) / (max - min).toFloat() + 360
+        max == g -> 60 * (b - r) / (max - min).toFloat() + 120
+        max == b -> 60 * (r - g) / (max - min).toFloat() + 240
         else -> throw IllegalStateException()
     }
 
     if (h.isNaN()) {
-        h = 0.0
+        h = 0.0f
     }
 
-    var s = (1 - min / max.toDouble()) * 100
+    var s = (1 - min / max.toFloat()) * 100
 
     if (s.isNaN()) {
-        s = 0.0
+        s = 0.0f
     }
-    val v = max.toDouble() * 100 / 255.0
+    val v = max * 100 / 255.0f
 
     return Hsv(h, s, v)
 }
@@ -96,18 +96,18 @@ private fun multiplyMatrices(firstMatrix: Array<FloatArray>, secondMatrix: Array
     return result
 }
 
-private fun toColor(r: Double, g: Double, b: Double) = Color(
+private fun toColor(r: Float, g: Float, b: Float) = Color(
         Math.round(r * 255).normalize(),
         Math.round(g * 255).normalize(),
         Math.round(b * 255).normalize()
 )
 
-private fun Long.normalize() = if (this >= 256) 255 else this.toInt()
+private fun Int.normalize() = if (this >= 256) 255 else this.toInt()
 
 class Hsv(
-        var h: Double,
-        var s: Double,
-        var v: Double) {
+        var h: Float,
+        var s: Float,
+        var v: Float) {
 
     fun toRgb(): Color {
         val s1 = s / 100

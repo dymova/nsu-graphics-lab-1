@@ -80,19 +80,19 @@ class HsvSlidersPanel(val imageContext: ImageContext) : JPanel(), ChangeImageLis
     private fun addSlidersListeners() {
         hSlider.addChangeListener {
             if (imageContext.originalImage != null) {
-                imageContext.imageHsv.h = hSlider.value.toDouble()
+                imageContext.imageHsv.h = hSlider.value.toFloat()
                 imageContext.notifyHsvListeners()
             }
         }
         sSlider.addChangeListener {
             if (imageContext.originalImage != null) {
-                imageContext.imageHsv.s = sSlider.value.toDouble()
+                imageContext.imageHsv.s = sSlider.value.toFloat()
                 imageContext.notifyHsvListeners()
             }
         }
         vSlider.addChangeListener {
             if (imageContext.originalImage != null) {
-                imageContext.imageHsv.v = vSlider.value.toDouble()
+                imageContext.imageHsv.v = vSlider.value.toFloat()
                 imageContext.notifyHsvListeners()
             }
         }

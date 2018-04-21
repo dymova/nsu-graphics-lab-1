@@ -9,7 +9,7 @@ class ImageContext {
     var originalImage: BufferedImage? = null
     var selection: Rectangle? = null
     var changedImage: BufferedImage? = null
-    var imageHsv: Hsv = Hsv(middle.toDouble(), middle.toDouble(), middle.toDouble())
+    var imageHsv: Hsv = Hsv(middle.toFloat(), middle.toFloat(), middle.toFloat())
 
     private var changeHsvListeners: MutableSet<ChangeHsvListener> = mutableSetOf()
     private val changeImageListeners: MutableList<ChangeImageListener> = mutableListOf()

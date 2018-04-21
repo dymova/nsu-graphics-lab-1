@@ -64,8 +64,6 @@ class ImagePanel(private val imageContext: ImageContext) : JPanel(), ChangeHsvLi
                 g2d.draw(imageContext.selection)
             }
             g2d.dispose()
-
-//            mainWindow.revalidate()
         }
     }
 
@@ -87,7 +85,7 @@ class ImagePanel(private val imageContext: ImageContext) : JPanel(), ChangeHsvLi
         repaint()
     }
 
-    fun getNewValue(sliderValue: Double, currentValue: Double): Double {
+    fun getNewValue(sliderValue: Float, currentValue: Float): Float {
         return when {
             sliderValue < middle -> sliderValue / middle * currentValue
             sliderValue > middle -> ((sliderValue / middle) - 1) * (100 - currentValue) + currentValue

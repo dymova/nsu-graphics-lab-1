@@ -1,5 +1,6 @@
 package adymova.nsu.grafics.panels.filters
 
+import adymova.nsu.grafics.core.rgbToHsv
 import java.awt.Color
 import java.awt.image.BufferedImage
 import kotlin.math.roundToInt
@@ -18,6 +19,33 @@ fun convolution(
         for (currentX in x - radius..x + radius) {
             val rgb = intermediateImage.getRGB(currentX, currentY)
             val chanelValue = selectChanel(chanelType, rgb)
+            val kernelX = currentX - x + radius
+            val kernelY = currentY - y + radius
+            val kernelVal = kernel[kernelX][kernelY]
+            sum += kernelVal * chanelValue
+            kernelSum += kernelVal
+        }
+    }
+
+    if (kernelSum <= 0) kernelSum = 1f
+    sum /= kernelSum
+    return sum
+}
+
+fun gaborConvolution(
+        kernel: Array<FloatArray>,
+        intermediateImage: BufferedImage,
+        x: Int,
+        y: Int,
+        radius: Int
+): Float {
+    var sum = 0f
+    var kernelSum = 0f
+    for (currentY in y - radius..y + radius) {
+        for (currentX in x - radius..x + radius) {
+            val rgb = intermediateImage.getRGB(currentX, currentY)
+            val hsv = rgbToHsv(Color(rgb))
+            val chanelValue = hsv.v
             val kernelX = currentX - x + radius
             val kernelY = currentY - y + radius
             val kernelVal = kernel[kernelX][kernelY]
@@ -182,6 +210,26 @@ fun applyResultToImageWithNormalization(resultRedArray: FloatArray, resultGreenA
             val g = if (maxGreen < delta) 0 else ((valueG - minGreen) * 255.0f / deltaGreen).roundToInt()
             val b = if (maxBlue < delta) 0 else ((valueB - minBlue) * 255.0f / deltaBlue).roundToInt()
             bufferedImage.setRGB(x, y, Color(r, g, b).rgb)
+        }
+    }
+
+    println("Incorrect count: $count / ${bufferedImage.height * bufferedImage.width}")
+}
+
+fun applyResultToImageWithNormalizationGabor(resultVArray: FloatArray, bufferedImage: BufferedImage) {
+    val maxV = resultVArray.max()!!
+    val minV = resultVArray.min()!!
+
+    val deltaV = maxV - minV
+
+    var count: Int = 0
+    for (y in 0 until bufferedImage.height) {
+        for (x in 0 until bufferedImage.width) {
+            val valueIndex = y * bufferedImage.width + x
+            val valueV = resultVArray[valueIndex]
+            val delta = 0.0001
+            val v = if (maxV < delta) 0 else ((valueV - minV) * 255.0f / deltaV).roundToInt()
+            bufferedImage.setRGB(x, y, Color(v, v, v).rgb)
         }
     }
 

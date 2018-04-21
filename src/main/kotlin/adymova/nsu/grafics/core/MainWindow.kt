@@ -99,9 +99,9 @@ class MainWindow : JFrame() {
     private fun updateImageContext(bufferedImage: BufferedImage?) {
         imageContext.originalImage = bufferedImage ?: return
         imageContext.changedImage = BufferedImage(bufferedImage.width, bufferedImage.height, TYPE_INT_RGB)
-        imageContext.imageHsv.h = middle.toDouble()
-        imageContext.imageHsv.s = middle.toDouble()
-        imageContext.imageHsv.v = middle.toDouble()
+        imageContext.imageHsv.h = middle.toFloat()
+        imageContext.imageHsv.s = middle.toFloat()
+        imageContext.imageHsv.v = middle.toFloat()
     }
 
 }

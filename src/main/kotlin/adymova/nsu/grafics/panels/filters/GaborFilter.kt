@@ -51,23 +51,17 @@ class GaborFilter {
 
         val intermediateImage = createIntermediateImage(bufferedImage, kernelRadius)
 
-        val resultRedArray = FloatArray(bufferedImage.height * bufferedImage.width)
-        val resultGreenArray = FloatArray(bufferedImage.height * bufferedImage.width)
-        val resultBlueArray = FloatArray(bufferedImage.height * bufferedImage.width)
+        val resultVArray = FloatArray(bufferedImage.height * bufferedImage.width)
 
         for (y in kernelRadius until intermediateImage.height - kernelRadius) {
             for (x in kernelRadius until intermediateImage.width - kernelRadius) {
                 val resultIndex = (y - kernelRadius) * bufferedImage.width + (x - kernelRadius)
-                resultRedArray[resultIndex] =
-                        convolution(kernel, intermediateImage, x, y, ChanelType.R, kernelRadius)
-                resultGreenArray[resultIndex] =
-                        convolution(kernel, intermediateImage, x, y, ChanelType.G, kernelRadius)
-                resultBlueArray[resultIndex] =
-                        convolution(kernel, intermediateImage, x, y, ChanelType.B, kernelRadius)
+                resultVArray[resultIndex] =
+                        gaborConvolution(kernel, intermediateImage, x, y, kernelRadius)
             }
         }
 
-        applyResultToImageWithNormalization(resultRedArray, resultGreenArray, resultBlueArray, bufferedImage)
+        applyResultToImageWithNormalizationGabor(resultVArray, bufferedImage)
     }
 
     private fun generateKernel(size: Int, theta: Float, gamma: Float, lambda: Float): Array<FloatArray> {
@@ -79,7 +73,7 @@ class GaborFilter {
 
         for (x in 0 until size) {
             for (y in 0 until size) {
-                val (polarX, polarY) = convertToPolarCoordinates(x - kernel.size/2, y - kernel.size/2, theta)
+                val (polarX, polarY) = convertToPolarCoordinates(x - kernel.size / 2, y - kernel.size / 2, theta)
                 kernel[x][y] = exp(-(polarX * polarX + gamma * gamma * polarY * polarY) / (sigma * sigma * 2)) * cos(2 * PI * polarX / lambda + fi).toFloat()
             }
         }

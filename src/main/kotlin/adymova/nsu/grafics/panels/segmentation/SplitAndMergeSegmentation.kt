@@ -7,12 +7,16 @@ import java.awt.image.BufferedImage
 import java.io.File
 import java.util.*
 import javax.imageio.ImageIO
+import kotlin.system.measureTimeMillis
 
 fun main(args: Array<String>) {
 
-    val file = File("/Users/nastya/lena64.png")
+    val file = File("/Users/nastya/Lenna.png")
     val bufferedImage = ImageIO.read(file)
-    SplitAndMergeSegmentation().apply(BufferedImg(bufferedImage), 5.0, { lab1, lab2 -> computeCiede2000Metrics(lab1, lab2) })
+    val millis = measureTimeMillis {
+        SplitAndMergeSegmentation().apply(BufferedImg(bufferedImage), 4.0, { lab1, lab2 -> computeCiede2000Metrics(lab1, lab2) })
+    }
+    println(millis)
     ImageIO.write(bufferedImage, "png", File("/Users/nastya/lena64_seg.png"))
 
 }
@@ -231,7 +235,7 @@ class Node(
     }
 
     private fun merge(idToRegionMap: HashMap<Int, MutableList<Node>>, neighbor: Node) {
-        //поменть всем регионам id
+        //поменять всем регионам id
         val neighborIdRegions = idToRegionMap[neighbor.regionId] ?: throw IllegalStateException()
         val currentNodeRegionIdRegions = idToRegionMap[regionId] ?: throw IllegalStateException()
 
