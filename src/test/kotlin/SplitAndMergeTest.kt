@@ -17,6 +17,8 @@ class SplitAndMergeTest {
                 intArrayOf(3, 3, 4, 4)
         ))
         SplitAndMergeSegmentation().apply(pseudoImage, 2.0, getTestMetrics())
+
+        println()
     }
 
     private fun getTestMetrics() = { lab1: Lab, lab2: Lab -> if (lab1 == lab2) 0.0 else 100.0 }

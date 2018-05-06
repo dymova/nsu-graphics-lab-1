@@ -36,15 +36,15 @@ class FormatConverterTest {
 
     }
 
-    private fun assertDoubleEquals(actual: Double, expected: Double) {
+    private fun assertDoubleEquals(actual: Float, expected: Float) {
         assertThat(abs(actual - expected) < 0.2).isTrue()
     }
 
     @ParameterizedTest
     @MethodSource("hsvValueProvider")
-    fun testGetNewHvsValue(sliderValue: Double, currentValue: Double, expectedValue: Double) {
+    fun testGetNewHvsValue(sliderValue: Float, currentValue: Float, expectedValue: Float) {
         val newValue = ImagePanel(ImageContext()).getNewValue(sliderValue, currentValue)
-        assertThat(newValue).isCloseTo(expectedValue, Offset.offset(0.5))
+        assertThat(newValue).isCloseTo(expectedValue, Offset.offset(0.5f))
     }
 
     @ParameterizedTest
@@ -63,13 +63,13 @@ class FormatConverterTest {
         @JvmStatic
         fun rgbAndHsvProvider(): Stream<Arguments> {
             return Stream.of(
-                    Arguments.of(Color(0, 0, 0), Hsv(0.0, 0.0, 0.0)),
-                    Arguments.of(Color(255, 255, 255), Hsv(0.0, 0.0, 100.0)),
-                    Arguments.of(Color(255, 0, 0), Hsv(0.0, 100.0, 100.0)),
-                    Arguments.of(Color(0,255,0), Hsv(120.0, 100.0, 100.0)),
-                    Arguments.of(Color(0, 128, 128), Hsv(180.0, 100.0, 50.0)),
-                    Arguments.of(Color(192, 192, 192), Hsv(0.0, 0.0, 75.0)),
-                    Arguments.of(Color(128, 0, 128), Hsv(300.0, 100.0, 50.0))
+                    Arguments.of(Color(0, 0, 0), Hsv(0.0f, 0.0f, 0.0f)),
+                    Arguments.of(Color(255, 255, 255), Hsv(0.0f, 0.0f, 100.0f)),
+                    Arguments.of(Color(255, 0, 0), Hsv(0.0f, 100.0f, 100.0f)),
+                    Arguments.of(Color(0,255,0), Hsv(120.0f, 100.0f, 100.0f)),
+                    Arguments.of(Color(0, 128, 128), Hsv(180.0f, 100.0f, 50.0f)),
+                    Arguments.of(Color(192, 192, 192), Hsv(0.0f, 0.0f, 75.0f)),
+                    Arguments.of(Color(128, 0, 128), Hsv(300.0f, 100.0f, 50.0f))
                     )
         }
 
