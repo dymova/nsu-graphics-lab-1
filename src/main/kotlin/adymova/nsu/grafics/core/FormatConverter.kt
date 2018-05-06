@@ -140,9 +140,9 @@ data class Xyz(
 )
 
 class Lab(
-        val l: Float,
-        val a: Float,
-        val b: Float
+        var l: Float,
+        var a: Float,
+        var b: Float
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

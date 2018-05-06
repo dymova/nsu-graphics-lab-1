@@ -11,10 +11,11 @@ import kotlin.system.measureTimeMillis
 
 fun main(args: Array<String>) {
 
-    val file = File("/Users/nastya/Lenna.png")
+    val file = File("/Users/nastya/lena64.png")
+//    val file = File("/Users/nastya/Lenna.png")
     val bufferedImage = ImageIO.read(file)
     val millis = measureTimeMillis {
-        SplitAndMergeSegmentation().apply(BufferedImg(bufferedImage), 4.0, { lab1, lab2 -> computeCiede2000Metrics(lab1, lab2) })
+        SplitAndMergeSegmentation().apply(BufferedImg(bufferedImage), 3.0, { lab1, lab2 -> computeCiede2000Metrics(lab1, lab2) })
     }
     println(millis)
     ImageIO.write(bufferedImage, "png", File("/Users/nastya/lena64_seg.png"))
@@ -36,6 +37,7 @@ class SplitAndMergeSegmentation {
 
         root.pass { it.splitIfPossible(maxDifference, metrics) }
         root.leafPass {
+            it.computeMeanLab()
             fillRegionsMap(it, currentRegionId, idToRegionMap)
             currentRegionId++
         }
@@ -82,6 +84,7 @@ class Node(
     private val rightTopChildIndex = 1
     private val leftBottomChildIndex = 2
     private val rightBottomChildIndex = 3
+    var meanLab: Lab? = null
 
 
     fun splitIfPossible(maxDifference: Double, metrics: (Lab, Lab) -> Double) {
@@ -149,34 +152,34 @@ class Node(
             when (currentNode) {
                 parent.children[leftTopChildIndex] -> {
                     if (neighbors.right.isEmpty()) {
-                        parent.children[rightTopChildIndex].collectLeftSideChildren(neighbors.right)
+                        parent.children[rightTopChildIndex].collectChildrenInnerSide(neighbors.right, Side.LEFT)
                     }
                     if (neighbors.bottom.isEmpty()) {
-                        parent.children[leftBottomChildIndex].collectTopSideChildren(neighbors.bottom)
+                        parent.children[leftBottomChildIndex].collectChildrenInnerSide(neighbors.bottom, Side.TOP)
                     }
                 }
                 parent.children[rightTopChildIndex] -> {
                     if (neighbors.left.isEmpty()) {
-                        parent.children[leftTopChildIndex].collectRightSideChildren(neighbors.left)
+                        parent.children[leftTopChildIndex].collectChildrenInnerSide(neighbors.left, Side.RIGHT)
                     }
                     if (neighbors.bottom.isEmpty()) {
-                        parent.children[rightBottomChildIndex].collectTopSideChildren(neighbors.bottom)
+                        parent.children[rightBottomChildIndex].collectChildrenInnerSide(neighbors.bottom, Side.TOP)
                     }
                 }
                 parent.children[leftBottomChildIndex] -> {
                     if (neighbors.top.isEmpty()) {
-                        parent.children[leftTopChildIndex].collectBottomSideChildren(neighbors.top)
+                        parent.children[leftTopChildIndex].collectChildrenInnerSide(neighbors.top, Side.TOP)
                     }
                     if (neighbors.right.isEmpty()) {
-                        parent.children[rightBottomChildIndex].collectLeftSideChildren(neighbors.right)
+                        parent.children[rightBottomChildIndex].collectChildrenInnerSide(neighbors.right, Side.LEFT)
                     }
                 }
                 parent.children[rightBottomChildIndex] -> {
                     if (neighbors.top.isEmpty()) {
-                        parent.children[rightTopChildIndex].collectBottomSideChildren(neighbors.top)
+                        parent.children[rightTopChildIndex].collectChildrenInnerSide(neighbors.top, Side.BOTTOM)
                     }
                     if (neighbors.left.isEmpty()) {
-                        parent.children[leftBottomChildIndex].collectRightSideChildren(neighbors.left)
+                        parent.children[leftBottomChildIndex].collectChildrenInnerSide(neighbors.left, Side.RIGHT)
                     }
                 }
             }
@@ -192,39 +195,29 @@ class Node(
         return neighbors
     }
 
-    private fun collectLeftSideChildren(list: MutableSet<Node>) {
+    private fun collectChildrenInnerSide(list: MutableSet<Node>, side: Side) {
         if (isLeaf()) {
             list.add(this)
         } else {
-            children[leftTopChildIndex].collectLeftSideChildren(list)
-            children[leftBottomChildIndex].collectLeftSideChildren(list)
-        }
-    }
+            when (side) {
+                Side.LEFT -> {
+                    children[leftTopChildIndex].collectChildrenInnerSide(list, side)
+                    children[leftBottomChildIndex].collectChildrenInnerSide(list, side)
+                }
+                Side.TOP -> {
+                    children[leftTopChildIndex].collectChildrenInnerSide(list, side)
+                    children[rightTopChildIndex].collectChildrenInnerSide(list, side)
+                }
+                Side.RIGHT -> {
+                    children[rightTopChildIndex].collectChildrenInnerSide(list, side)
+                    children[rightBottomChildIndex].collectChildrenInnerSide(list, side)
+                }
+                Side.BOTTOM -> {
+                    children[leftBottomChildIndex].collectChildrenInnerSide(list, side)
+                    children[rightBottomChildIndex].collectChildrenInnerSide(list, side)
+                }
 
-    private fun collectRightSideChildren(list: MutableSet<Node>) {
-        if (isLeaf()) {
-            list.add(this)
-        } else {
-            children[rightTopChildIndex].collectRightSideChildren(list)
-            children[rightBottomChildIndex].collectRightSideChildren(list)
-        }
-    }
-
-    private fun collectTopSideChildren(list: MutableSet<Node>) {
-        if (isLeaf()) {
-            list.add(this)
-        } else {
-            children[leftTopChildIndex].collectTopSideChildren(list)
-            children[rightTopChildIndex].collectTopSideChildren(list)
-        }
-    }
-
-    private fun collectBottomSideChildren(list: MutableSet<Node>) {
-        if (isLeaf()) {
-            list.add(this)
-        } else {
-            children[leftBottomChildIndex].collectBottomSideChildren(list)
-            children[rightBottomChildIndex].collectBottomSideChildren(list)
+            }
         }
     }
 
@@ -249,20 +242,30 @@ class Node(
 
 
     private fun notBreakHomogeneity(neighbor: Node, metrics: (Lab, Lab) -> Double, maxDifference: Double): Boolean {
-        for (currentNodeX in xStart until xEnd) {
-            for (currentNodeY in yStart until yEnd) {
-                for (neighborX in neighbor.xStart until neighbor.xEnd) {
-                    for (neighborY in neighbor.yStart until neighbor.yEnd) {
-                        val currentNodeLab = imageAsLabArrays.getLabByXY(currentNodeX, currentNodeY)
-                        val neighborLab = neighbor.imageAsLabArrays.getLabByXY(neighborX, neighborY)
-                        if (metrics(currentNodeLab, neighborLab) >= maxDifference) {
-                            return false
-                        }
-                    }
-                }
-            }
+        val neighborMeanLab = neighbor.meanLab ?: throw IllegalStateException()
+        val currentMeanLab = meanLab ?: throw IllegalStateException()
+
+        if (metrics(currentMeanLab, neighborMeanLab) >= maxDifference) {
+            return false
         }
         return true
+    }
+
+    fun computeMeanLab() {
+        val meanLab = Lab(0f, 0f, 0f)
+        var count = 0
+
+        for (x in xStart until xEnd) {
+            for (y in yStart until yEnd) {
+                val lab = imageAsLabArrays.getLabByXY(x, y)
+                meanLab.l += lab.l
+                meanLab.a += lab.a
+                meanLab.b += lab.b
+                count++
+            }
+        }
+        this.meanLab = meanLab
+
     }
 }
 
@@ -274,16 +277,19 @@ class Neighbors {
 }
 
 
-class ImageAsLabArrays(bufferedImage: Image) {
-    val width = bufferedImage.getWidth()
-    val height = bufferedImage.getHeight()
-    private val size = height * width
+class ImageAsLabArrays(lValues: FloatArray, aValues: FloatArray, bValues: FloatArray, val width: Int, val height: Int) {
+    private val size = height * this.width
 
     private val lValues = FloatArray(size)
     private val aValues = FloatArray(size)
     private val bValues = FloatArray(size)
 
-    init {
+    constructor(bufferedImage: Image) : this(FloatArray(bufferedImage.getHeight() * bufferedImage.getWidth()),
+            FloatArray(bufferedImage.getHeight() * bufferedImage.getWidth()),
+            FloatArray(bufferedImage.getHeight() * bufferedImage.getWidth()),
+            bufferedImage.getWidth(),
+            bufferedImage.getHeight()
+    ) {
         for (y in 0 until height) {
             for (x in 0 until width) {
                 val lab = rgbToLab(Color(bufferedImage.getRGB(x, y)))
@@ -301,6 +307,10 @@ class ImageAsLabArrays(bufferedImage: Image) {
         return Lab(lValues[index], aValues[index], bValues[index])
     }
 
+    fun copy(): ImageAsLabArrays {
+        return ImageAsLabArrays(lValues, aValues, bValues, width, height)
+    }
+
 }
 
 interface Image {
@@ -309,9 +319,14 @@ interface Image {
 
     fun getRGB(x: Int, y: Int): Int
     fun applySegmentation(values: MutableCollection<MutableList<Node>>)
+    fun setRGB(x: Int, y: Int, color: Int)
 }
 
 class BufferedImg(val bufferedImage: BufferedImage) : Image {
+    override fun setRGB(x: Int, y: Int, color: Int) {
+        bufferedImage.setRGB(x, y, color)
+    }
+
     override fun getWidth(): Int {
         return bufferedImage.width
     }
@@ -352,6 +367,10 @@ class BufferedImg(val bufferedImage: BufferedImage) : Image {
 }
 
 class PseudoImage(val image: Array<IntArray>) : Image {
+    override fun setRGB(x: Int, y: Int, color: Int) {
+        image[x][y] = color
+    }
+
     override fun applySegmentation(values: MutableCollection<MutableList<Node>>) {
         println("PseudoImage.applySegmentation was invoked")
     }
@@ -369,4 +388,11 @@ class PseudoImage(val image: Array<IntArray>) : Image {
     }
 
 
+}
+
+enum class Side {
+    TOP,
+    BOTTOM,
+    LEFT,
+    RIGHT
 }
