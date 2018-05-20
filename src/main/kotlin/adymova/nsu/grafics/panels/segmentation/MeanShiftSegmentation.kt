@@ -110,21 +110,21 @@ class MeanShiftSegmentation {
 
 }
 
-fun euclideanDistance(p1: Point, p2: Point): Double {
-    return sqrt(pow(p1.x - p1.y.toDouble(), 2.0) + pow(p2.x - p2.y.toDouble(), 2.0))
-}
-
 data class Coordinate(
     val x: Int,
     val y: Int
 )
-
 
 class Point(
     var x: Float,
     var y: Float,
     var lab: Lab
 )
+
+
+fun euclideanDistance(p1: Point, p2: Point): Double {
+    return sqrt(pow(p1.x - p1.y.toDouble(), 2.0) + pow(p2.x - p2.y.toDouble(), 2.0))
+}
 
 
 class PointGrouper {

@@ -404,7 +404,7 @@ class PseudoImage(val image: Array<IntArray>) : Image {
     }
 
     override fun getRGB(x: Int, y: Int): Int {
-        return image[x][y]
+        return image[y][x]
     }
 
 
